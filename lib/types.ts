@@ -42,12 +42,29 @@ export interface Reservation {
   status: "pending" | "confirmed" | "cancelled";
   paymentId?: string;
   reason?: string; // For admin bookings/blocks
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
 }
 
 export interface AvailabilityDate {
   date: Date;
   available: boolean;
   remainingCapacity: number;
+}
+
+export interface ReservationData {
+  createdAt: string;
+  updatedAt: string;
+  startDate: string;
+  endDate: string;
+  contactName: string | null;
+  contactLastName: string | null;
+  contactEmail: string | null;
+  contactPhone: string | null;
+  unit: string | null;
+  persons: number | null;
+  reason: string | null;
+  includeBreakfast: boolean | null;
+  includeLunch: boolean | null;
+  notifyUser: boolean | null;
 }
