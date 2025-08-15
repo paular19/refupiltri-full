@@ -3,6 +3,7 @@ import React from 'react';
 import Image from 'next/image';
 import { ChevronDown } from 'lucide-react';
 
+
 const Hero = () => {
   const scrollToAbout = () => {
     document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
@@ -23,24 +24,21 @@ const Hero = () => {
 
       {/* Content */}
       <div className="relative z-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto h-full flex items-end pb-16">
-        <div className="w-full grid grid-cols-1 md:grid-cols-[60%_40%] gap-16 items-end">
+        <div className="w-full grid grid-cols-1 lg:grid-cols-[minmax(350px,55%)_minmax(300px,45%)] gap-16 items-end">
           
           {/* Título */}
-          <div className="self-start">
+          <div className="self-start text-left max-w-[500px]">
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-poppins font-extralight text-white leading-tight animate-fade-in tracking-tight">
-              <div>
-                Somos tu <span className="italic">refugio</span>,
-              </div>
+              <div>Somos tu <span className="italic">refugio</span>,</div>
               <div>todo el año</div>
             </h1>
           </div>
 
           {/* Texto + botón */}
-          <div className="text-left">
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-cream mb-6 font-montserrat animate-slide-up leading-relaxed max-w-xl">
+          <div className="text-left max-w-[500px]">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-cream mb-6 font-montserrat animate-slide-up leading-relaxed">
               Donde el lujo está en la simpleza, la montaña se vuelve hogar y el paladar encuentra su cima.
             </p>
-
             <button
               onClick={() => document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' })}
               className="px-6 py-3 rounded-full font-poppins font-light transition-all duration-300 transform hover:scale-105 text-white"
@@ -49,7 +47,6 @@ const Hero = () => {
               Reservar ahora
             </button>
           </div>
-
         </div>
       </div>
 

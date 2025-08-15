@@ -1,3 +1,4 @@
+'use client';
 import React from "react";
 import Image from "next/image";
 
@@ -8,6 +9,10 @@ const Services = () => {
       title: "ALOJAMIENTO",
       features: ["REFUGIO COMPARTIDO", "CAMPING", "CABAÑA"],
       buttonText: "RESERVAR AHORA",
+      onClick: () =>
+        document
+          .getElementById("booking")
+          ?.scrollIntoView({ behavior: "smooth" }),
     },
     {
       image: "/img-serv2.jpg",
@@ -19,12 +24,19 @@ const Services = () => {
         "CAFETERÍA & BEBIDAS",
       ],
       buttonText: "VER MENÚ",
+        onClick: () =>
+        document
+          .getElementById("contact")
+          ?.scrollIntoView({ behavior: "smooth" }),
     },
     {
       image: "/img-serv3.jpg",
       title: "SERVICIOS ADICIONALES",
       features: ["TRASLADOS", "SALIDAS GUIADAS", "ASESORAMIENTO"],
       buttonText: "CONSULTAR",
+      onClick: () => {
+        window.open("https://wa.me/5492944120310", "_blank");
+      },
     },
   ];
 
@@ -64,26 +76,19 @@ const Services = () => {
                   fill
                   className="object-cover hover:scale-105 transition-transform duration-300"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  priority={index === 0} // solo prioriza la primera para performance
+                  priority={index === 0}
                 />
               </div>
 
               {/* Contenido */}
               <div className="p-6 flex flex-col flex-grow">
-                <h3
-                  className="text-2xl font-light mb-5"
-                  style={{ maxWidth: "280px" }}
-                >
+                <h3 className="text-2xl font-light mb-5" style={{ maxWidth: "280px" }}>
                   {service.title}
                 </h3>
 
                 <ul className="divide-y divide-[#1A222B] flex-grow">
                   {service.features.map((feature, idx) => (
-                    <li
-                      key={idx}
-                      className="py-1 text-lg font-light"
-                      style={{ color: "#1A222B" }}
-                    >
+                    <li key={idx} className="py-1 text-lg font-light" style={{ color: "#1A222B" }}>
                       {feature}
                     </li>
                   ))}
@@ -93,9 +98,9 @@ const Services = () => {
 
                 <div className="flex flex-col items-center mt-4">
                   <button
-                    type="button"
-                    className="font-poppins font-light text-[#1A222B] px-6 py-1 text-base"
-                    style={{ minWidth: "auto" }}
+                    onClick={service.onClick}
+                    className="px-6 py-3 rounded-full font-poppins font-light transition-all duration-300 transform hover:scale-105 #1A222B"
+                    
                   >
                     {service.buttonText}
                   </button>
@@ -112,13 +117,7 @@ const Services = () => {
       {/* Sticker */}
       <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 z-10 w-60 h-36">
         <div className="relative w-full h-full">
-          <Image
-            src="/stiker-serv.png"
-            alt="Sticker"
-            fill
-            className="object-contain"
-            sizes="240px"
-          />
+          <Image src="/stiker-serv.png" alt="Sticker" fill className="object-contain" sizes="240px" />
         </div>
       </div>
     </section>

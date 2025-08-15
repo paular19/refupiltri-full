@@ -54,7 +54,7 @@ const Contact = () => {
                 <p className="text-base sm:text-lg font-poppins font-semibold text-[#1A222B]">TELÉFONO</p>
               </div>
               <p className="text-sm font-montserrat text-[#1A222B] break-words">
-                WhatsApp: +54 9 294 444 555
+                WhatsApp: +54 9 294 4120 310
               </p>
               <p className="text-sm font-montserrat text-[#1A222B]">
                 De 8:00hs a 20:00 hs
