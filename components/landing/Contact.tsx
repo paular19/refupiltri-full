@@ -27,12 +27,18 @@ const Contact = () => {
           </p>
           <div className="h-[2px] bg-[#1A222B] w-full max-w-[120px] mb-6" />
           <div className="flex items-center gap-6 mb-6">
-            <div className="relative w-10 h-10 sm:w-12 sm:h-12">
-              <Image src="/ig.png" alt="Instagram" fill className="object-contain" />
-            </div>
-            <div className="relative w-10 h-10 sm:w-12 sm:h-12">
-              <Image src="/fb.png" alt="Facebook" fill className="object-contain" />
-            </div>
+            <a href="https://www.instagram.com/piltriquitronrefugio/" target="_blank" rel="noopener noreferrer">
+              <div className="relative w-10 h-10 sm:w-12 sm:h-12">
+                <Image src="/ig.png" alt="Instagram" fill className="object-contain" />
+              </div>
+            </a>
+
+            <a href="https://www.facebook.com/profile.php?id=61552962930345" target="_blank" rel="noopener noreferrer">
+              <div className="relative w-10 h-10 sm:w-12 sm:h-12">
+                <Image src="/fb.png" alt="Facebook" fill className="object-contain" />
+              </div>
+            </a>
+
           </div>
           <p className="text-base text-[#1A222B] font-montserrat font-medium mb-8">
             Enterate de las actualizaciones <br /> de clima y actividades

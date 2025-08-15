@@ -128,11 +128,10 @@ const Promos = () => {
               </div>
             ))}
           </div>
-
-          {/* Descuento especial */}
           <div className="p-8 mt-24" style={{ width: "96%", margin: "0 auto" }}>
-            <div className="flex flex-col 700:flex-row items-center gap-6 mb-4">
-              <div className="h-24 w-24 flex-shrink-0 self-center relative">
+            <div className="flex flex-col sm:flex-row items-start gap-6">
+
+              <div className="h-24 w-24 flex-shrink-0 relative">
                 <Image
                   src="/icono-promo.png"
                   alt="Icono Promo"
@@ -140,22 +139,26 @@ const Promos = () => {
                   className="object-contain"
                 />
               </div>
+
               <div className="flex flex-col gap-2 w-full">
-                <div className="flex flex-col 700:flex-row items-start 700:items-center justify-between gap-2 700:gap-4">
-                  <h3 className="text-lg font-poppins font-normal text-dark-navy leading-snug text-center 700:text-left">
-                    ¿Sos residente <br /> de la Comarca Andina?
-                  </h3>
-                  <span className="text-2xl 700:text-3xl font-poppins font-semibold text-[#6E6F30] text-center 700:text-left">
-                    Tenés 20% off
-                  </span>
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
+
+                  <div className="w-full sm:w-1/3">
+                    <h3 className="text-lg font-poppins font-normal text-dark-navy leading-snug text-left">
+                      ¿Sos residente <br /> de la Comarca Andina?
+                    </h3>
+                  </div>
+
+                  <div className="mt-2 sm:mt-0">
+                    <span className="text-2xl sm:text-3xl font-poppins font-semibold text-[#6E6F30] text-left">
+                      Tenés 20% off
+                    </span>
+                  </div>
                 </div>
 
-                <hr
-                  className="border-t border-[#1A222B] w-full"
-                  style={{ borderWidth: "1px" }}
-                />
+                <hr className="border-t border-[#1A222B] w-full" style={{ borderWidth: "1px" }} />
 
-                <p className="text-sm font-montserrat font-light text-dark-navy text-center 700:text-left">
+                <p className="text-sm font-montserrat font-light text-dark-navy text-left">
                   Para aplicar el descuento, solo tenés que mostrarnos tu DNI.
                   <br />
                   Descuento no acumulable con otras promociones.
