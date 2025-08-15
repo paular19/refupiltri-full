@@ -22,7 +22,7 @@ if (!admin.apps.length) {
     // Connect to Firestore Emulator
 
     firestore.settings({
-      host: "localhost",
+      host: "127.0.0.1",
       port: 8080,
       ssl: false, // Change this depending on your emulator setup
     });

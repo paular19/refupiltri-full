@@ -9,14 +9,14 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo y descripción */}
           <div className="md:col-span-2 flex flex-col items-start">
-            <div className="relative h-8 w-auto mb-4">
-              <Image
-                src="/refu-logo.png"
-                alt="Logo Refugio Piltriquitrón"
-                fill
-                className="object-contain"
-              />
-            </div>
+            <div className="relative h-16 w-40 mb-4"> {/* altura y ancho fijos */}
+            <Image
+              src="/refu-logo.png"
+              alt="Logo Refugio Piltriquitrón"
+              fill
+              className="object-contain"
+            />
+          </div>
             <p className="text-cream/90 mb-4 max-w-md font-montserrat text-2xl leading-snug whitespace-pre-line">
               Somos tu refugio{'\n'}en la montaña.
             </p>
@@ -53,7 +53,7 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-poppins font-medium mb-4">Contacto</h3>
             <div className="space-y-2 text-cream/80 font-poppins text-sm">
-              <p>+54 294 444-5555</p>
+              <p>+54 9 294 4120 310</p>
               <p>info@refugiopiltriquitron.com</p>
               <p>
                 Cerro Piltriquitrón<br />
