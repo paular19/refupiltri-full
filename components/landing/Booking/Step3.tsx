@@ -37,6 +37,8 @@ export const Step3 = ({ formData }: { formData: ReservationData }) => (
     <input type="hidden" name="endDate" value={formData.endDate} />
     <input type="hidden" name="persons" value={formData.persons as number} />
     <input type="hidden" name="unit" value={formData.unit as string} />
+    <input type="hidden" name="origin" value={"web"} />
+    <input type="hidden" name="status" value={"confirmada"} />
     <input
       type="hidden"
       name="contactName"

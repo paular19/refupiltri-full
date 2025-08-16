@@ -40,9 +40,12 @@ export async function createReservationAction(
     unit: reservation.get("unit"),
     persons: reservation.get("persons"),
     reason: reservation.get("reason"),
+    origin: reservation.get("origin"),
+    status: reservation.get("status"),
     includeBreakfast: reservation.get("includeBreakfast"),
     includeLunch: reservation.get("includeLunch"),
     notifyUser: reservation.get("notifyUser"),
+
     // Add othe r fields from FormData as needed
   };
 

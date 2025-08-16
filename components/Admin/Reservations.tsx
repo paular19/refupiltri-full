@@ -54,6 +54,8 @@ export default function Reservations({ reservations }: ReservationsProps) {
                 <TableHead>Unidad</TableHead>
                 <TableHead>Personas</TableHead>
                 <TableHead>Fechas</TableHead>
+                <TableHead>Desayuno</TableHead>
+                <TableHead>Almuerzo</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead>Origen</TableHead>
                 <TableHead>Acciones</TableHead>
@@ -92,7 +94,21 @@ export default function Reservations({ reservations }: ReservationsProps) {
                       })}
                     </p>
                   </TableCell>
-                  <TableCell>{getStatusBadge(reservation.status)}</TableCell>
+                  <TableCell>
+                    {reservation.includeBreakfast ? (
+                      <Badge variant="default">Sí</Badge>
+                    ) : (
+                      <Badge variant="secondary">No</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {reservation.includeLunch ? (
+                      <Badge variant="default">Sí</Badge>
+                    ) : (
+                      <Badge variant="secondary">No</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell>{reservation.status}</TableCell>
                   <TableCell>
                     <Badge variant="outline">{reservation.origin}</Badge>
                   </TableCell>

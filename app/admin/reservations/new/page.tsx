@@ -87,11 +87,11 @@ export default async function NewReservationPage() {
 
                   <div className="space-y-2">
                     <Label>Origen</Label>
-                    <Input name="origin" value={"manual"} />
+                    <Input name="origin" defaultValue={"manual"} />
                   </div>
                   <div className="space-y-2">
                     <Label>Estado</Label>
-                    <Select name="persons" defaultValue={RESERVATION_STATUS[1]}>
+                    <Select name="status" defaultValue={RESERVATION_STATUS[1]}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
