@@ -73,15 +73,43 @@ const Booking = () => {
                     setCurrentStep={setCurrentStep}
                   ></Step2>
                 )}
-                {currentStep === 3 && <Step3 formData={formData}></Step3>}
-                <div className="flex gap-4">
-                  <button
-                    type="submit"
-                    className="w-full bg-[#C0DAE0] text-[#6E6F30] py-3 rounded-lg font-poppins font-extralight hover:bg-[#A9C5CE] transition-colors duration-300"
-                  >
+                {currentStep === 3 && (
+                  <>
+                    <Step3 formData={formData}/>
+                    <div className="flex gap-4">
+                      <button
+                        type="button" 
+                        onClick={async () => {
+                          try {
+                            const res = await fetch("/api/create-payment", {
+                              method: "POST",
+                              headers: {
+                                "Content-Type": "application/json",
+                              },
+                              body: JSON.stringify(formData),
+                            });
+
+                            if (!res.ok) {
+                              const err = await res.json();
+                              throw new Error(err.error || "Error al crear la preferencia");
+                            }
+
+                            const { preferenceId } = await res.json();
+
+                            // Redirigir al checkout de Mercado Pago
+                            window.location.href = `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=${preferenceId}`;
+                          } catch (err) {
+                            console.error("Error creando preferencia:", err);
+                            alert("Hubo un problema al iniciar el pago. Intenta nuevamente.");
+                          }
+                        }}
+                        className="w-full bg-[#C0DAE0] text-[#6E6F30] py-3 rounded-lg font-poppins font-extralight hover:bg-[#A9C5CE] transition-colors duration-300"
+                      >
                     Confirmar Reserva
                   </button>
                 </div>
+                </>
+                )}
               </form>
             </div>
           </div>
