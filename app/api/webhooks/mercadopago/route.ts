@@ -7,6 +7,7 @@ import {
 } from "@/lib/firebase/reservation-server";
 import { sendBookingConfirmation } from "@/lib/email";
 import { BookingData } from "@/lib/types";
+import { ORIGIN_TYPES, MP_RESERVATION_STATUS } from "@/lib/constants";
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MP_ACCESS_TOKEN!,
@@ -26,15 +27,15 @@ export async function POST(request: NextRequest) {
           paymentData.metadata?.booking_data || "{}"
         );
 
-    // Create reservation in database
-    const reservationId = await createReservation({
-      ...bookingData,
-      origin: "web",
-      status: "pending",
-      paymentId: paymentData.id?.toString(),
-      startDate: Timestamp.fromDate(new Date(bookingData.startDate)),
-      endDate: Timestamp.fromDate(new Date(bookingData.endDate)),
-    });
+        // Create reservation in database
+        const reservationId = await createReservation({
+          ...bookingData,
+          origin: ORIGIN_TYPES.Web, 
+          status: MP_RESERVATION_STATUS.Pendiente,
+          paymentId: paymentData.id?.toString(),
+          startDate: Timestamp.fromDate(new Date(bookingData.startDate)),
+          endDate: Timestamp.fromDate(new Date(bookingData.endDate)),
+        });
 
 
         // Send confirmation emails
