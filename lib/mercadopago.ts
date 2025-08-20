@@ -6,6 +6,7 @@ import { differenceInDays } from 'date-fns';
 const client = new MercadoPagoConfig({
   accessToken: process.env.MP_ACCESS_TOKEN!,
 });
+console.log("Using MP token:", process.env.MP_ACCESS_TOKEN);
 
 export async function createPaymentPreference(bookingData: BookingData): Promise<string> {
   const preference = new Preference(client);
@@ -34,19 +35,20 @@ export async function createPaymentPreference(bookingData: BookingData): Promise
   const preferenceData = {
     items: [
       {
+        id: `booking-${bookingData.unit}`,
         title: `Reserva ${unit.name} - ${nights} noches`,
         quantity: 1,
-        unit_price: totalPrice,
+        unit_price: Number(totalPrice),
         currency_id: 'ARS',
       },
     ],
     payer: {
       name: bookingData.contactName,
-      surname: bookingData.contactLastName,
+      surname: bookingData.contactLastName || "",
       email: bookingData.contactEmail,
-      phone: {
-        number: bookingData.contactPhone,
-      },
+     phone: {
+      number: String(bookingData.contactPhone || ""),
+    },
     },
     back_urls: {
       success: `${process.env.NEXT_PUBLIC_APP_URL}/booking/success`,
@@ -61,5 +63,6 @@ export async function createPaymentPreference(bookingData: BookingData): Promise
   };
 
   const response = await preference.create({ body: preferenceData });
-  return response.id!;
+  console.log("Preference created:", response);
+  return response.id!; 
 }
