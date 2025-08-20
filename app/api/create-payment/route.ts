@@ -1,3 +1,4 @@
+// app/api/create-payment/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createPaymentPreference } from '@/lib/mercadopago';
 import { BookingData } from '@/lib/types';

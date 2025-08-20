@@ -74,12 +74,13 @@ function calculateOccupiedCapacity(
   }, 0);
 }
 
-export async function checkAvailability(
+export async function checkAvailability( 
   unit: UnitType,
   persons: number,
   startDate: Date,
   endDate: Date
 ): Promise<boolean> {
+  return true //cambiar cuando ya este todo validado
   console.log(startDate);
   console.log(endDate);
   const availability = await getAvailabilityForUnit(unit, startDate, endDate);
