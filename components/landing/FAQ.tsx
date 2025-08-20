@@ -1,6 +1,7 @@
 "use client"
 import React, { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 const FAQ = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -14,18 +15,30 @@ const FAQ = () => {
     },
     {
       question: "¿Cuánto tiempo se tarda en subir?",
-      answer: "El tiempo de ascenso al refugio varía entre 1:30 y 2:30 horas, según el ritmo y el clima.",
+      answer:
+        "El tiempo de ascenso al refugio varía entre 1:30 y 2:30 horas, según el ritmo y el clima.",
       icon: "/icono2-faq.png",
     },
     {
       question: "¿Qué actividades puedo hacer además de alojarme?",
-      answer: "Ofrecemos trekking, esquí de travesía, escalada en hielo y más. Te ayudamos a coordinar salidas con guías certificados.",
+      answer:
+        "Ofrecemos trekking, esquí de travesía, escalada en hielo y más. Te ayudamos a coordinar salidas con guías certificados.",
       icon: "/icono3-faq.png",
     },
     {
       question: "¿Dónde veo el estado del clima o del camino?",
-      answer: "Podés consultarlo directamente desde nuestra plataforma o seguir las actualizaciones desde redes.",
-      action: "Ver condiciones →",
+      answer: (
+        <>
+          Podés consultarlo{" "}
+          <Link
+            href="/status"
+            className="text-blue-600 underline hover:text-blue-800"
+          >
+            aquí
+          </Link>{" "}
+          donde actualizamos el clima y las condiciones del camino diariamente.
+        </>
+      ),
       icon: "/icono4-faq.png",
     },
   ];
@@ -41,15 +54,24 @@ const FAQ = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-8">
           <div className="flex items-start gap-4">
             <div className="relative h-20 w-20 md:h-24 md:w-24">
-              <Image src="/icon-mochila.png" alt="Mochila" fill className="object-contain" />
+              <Image
+                src="/icon-mochila.png"
+                alt="Mochila"
+                fill
+                className="object-contain"
+              />
             </div>
             <h2 className="text-4xl font-light text-[#F7F8FA] font-poppins leading-snug text-responsive-sm">
-              Lo que siempre<br />nos preguntan:
+              Lo que siempre
+              <br />
+              nos preguntan:
             </h2>
           </div>
           <p className="text-base text-[#F7F8FA] font-montserrat text-left max-w-md leading-relaxed">
-            No hace falta subir con dudas.<br />
-            Acá despejamos las más comunes...<br />
+            No hace falta subir con dudas.
+            <br />
+            Acá despejamos las más comunes...
+            <br />
             y si falta algo, escribinos. Siempre hay lugar para una charla más.
           </p>
         </div>
@@ -67,7 +89,12 @@ const FAQ = () => {
               >
                 <div className="flex items-center gap-4">
                   <div className="relative h-6 w-6">
-                    <Image src={faq.icon} alt="Icono" fill className="object-contain" />
+                    <Image
+                      src={faq.icon}
+                      alt="Icono"
+                      fill
+                      className="object-contain"
+                    />
                   </div>
                   <h3 className="text-lg font-poppins font-light text-[#1A222B]">
                     {faq.question}
@@ -75,7 +102,7 @@ const FAQ = () => {
                 </div>
                 <span
                   className={`text-[#1A222B] text-xl font-light transform transition-transform duration-300 ${
-                    openIndex === index ? 'rotate-180' : ''
+                    openIndex === index ? "rotate-180" : ""
                   } scale-x-150`}
                 >
                   ˅
@@ -105,14 +132,19 @@ const FAQ = () => {
           <button
             onClick={() =>
               window.open(
-                'https://maps.google.com/?q=Cerro+Piltriquitrón,+El+Bolsón,+Río+Negro,+Argentina',
-                '_blank'
+                "https://maps.google.com/?q=Cerro+Piltriquitrón,+El+Bolsón,+Río+Negro,+Argentina",
+                "_blank"
               )
             }
             className="flex items-center justify-center gap-2 mx-auto bg-[#6E6F30] text-[#F7F8FA] px-8 py-3 rounded-full font-poppins text-base font-light hover:bg-[#5e5f28] transition-colors duration-300 shadow-lg hover:shadow-xl"
           >
             <div className="relative h-5 w-5">
-              <Image src="/icono5-faq.png" alt="Ubicación" fill className="object-contain" />
+              <Image
+                src="/icono5-faq.png"
+                alt="Ubicación"
+                fill
+                className="object-contain"
+              />
             </div>
             Ver ubicación en el mapa
           </button>

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getReservations } from "@/lib/firebase/reservation-server";
 import Reservations from "@/components/Admin/Reservations";
 import Filters from "@/components/Admin/Filters";
+import PathStatusSection from "@/components/Admin/PathStatusSection";
 
 interface AdminPageProps {
   searchParams: {
@@ -42,6 +43,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold">Panel de Administración</h1>
           </div>
+          <PathStatusSection/>
           <Filters searchParams={searchParams} />
           <Reservations reservations={reservations} />
         </div>
