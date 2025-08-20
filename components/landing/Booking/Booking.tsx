@@ -12,6 +12,7 @@ import { createReservationAction } from "@/app/actions/reservations";
 
 const Booking = () => {
   const now = new Date().toISOString();
+
   const [formData, setFormData] = useState<ReservationData>({
     createdAt: now,
     updatedAt: now,
@@ -36,13 +37,39 @@ const Booking = () => {
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
-    let { name, value } = e.target;
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
+  const handleCreateBooking = async () => {
+    try {
+      const res = await fetch("/api/create-payment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Error al crear la preferencia");
+      }
+
+      const { preferenceId } = await res.json();
+
+      // Redirigir al checkout de Mercado Pago
+      window.location.href = `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=${preferenceId}`;
+    } catch (err) {
+      console.error("Error creando preferencia:", err);
+      alert("Hubo un problema al iniciar el pago. Intenta nuevamente.");
+    }
+  };
+
+  // 📌 Render
   return (
     <div>
       <section id="booking" className="py-20 bg-light-beige relative">
@@ -63,25 +90,33 @@ const Booking = () => {
                   <Step1
                     formData={formData}
                     handleInputChange={handleInputChange}
+                    setFormData={setFormData}
                     setCurrentStep={setCurrentStep}
-                  ></Step1>
+                  />
                 )}
+
                 {currentStep === 2 && (
                   <Step2
                     formData={formData}
                     handleInputChange={handleInputChange}
                     setCurrentStep={setCurrentStep}
-                  ></Step2>
+                  />
                 )}
-                {currentStep === 3 && <Step3 formData={formData}></Step3>}
-                <div className="flex gap-4">
-                  <button
-                    type="submit"
-                    className="w-full bg-[#C0DAE0] text-[#6E6F30] py-3 rounded-lg font-poppins font-extralight hover:bg-[#A9C5CE] transition-colors duration-300"
-                  >
-                    Confirmar Reserva
-                  </button>
-                </div>
+
+                {currentStep === 3 && (
+                  <>
+                    <Step3 formData={formData} />
+                    <div className="flex gap-4">
+                      <button
+                        type="button"
+                        onClick={handleCreateBooking}
+                        className="w-full bg-[#C0DAE0] text-[#6E6F30] py-3 rounded-lg font-poppins font-extralight hover:bg-[#A9C5CE] transition-colors duration-300"
+                      >
+                        Confirmar Reserva
+                      </button>
+                    </div>
+                  </>
+                )}
               </form>
             </div>
           </div>

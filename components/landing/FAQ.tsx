@@ -9,7 +9,7 @@ const FAQ = () => {
     {
       question: "¿Cómo llego al refugio?",
       answer: "Te compartimos las opciones de acceso y traslado.",
-      action: "Ver mapa y opciones →",
+      action: "Opciones →",
       icon: "/icono1-faq.png",
     },
     {
