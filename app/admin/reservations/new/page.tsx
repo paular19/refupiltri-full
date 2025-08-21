@@ -13,8 +13,15 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { UNITS, RESERVATION_STATUS } from "@/lib/constants";
+import { formToReservationData } from "@/lib/utils";
 
 export default async function NewReservationPage() {
+  const handleAction = async (formData: FormData) => {
+    "use server";
+    const reservation = formToReservationData(formData);
+    await createReservationAction(reservation);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto py-8">
@@ -26,7 +33,7 @@ export default async function NewReservationPage() {
             <h1 className="text-3xl font-bold ml-4">Nueva Reserva</h1>
           </div>
 
-          <form action={createReservationAction} className="space-y-6">
+          <form action={handleAction} className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Detalles de la Reserva</CardTitle>
@@ -35,7 +42,7 @@ export default async function NewReservationPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Unidad *</Label>
-                    <Select name="unit">
+                    <Select name="unit" defaultValue={UNITS["refugio"].type}>
                       <SelectTrigger>
                         <SelectValue placeholder="Seleccione una unidad" />
                       </SelectTrigger>
