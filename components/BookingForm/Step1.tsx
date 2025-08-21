@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { UnitType } from '@/lib/types';
 import { UNITS } from '@/lib/constants';
 import 'react-day-picker/dist/style.css';
+import { DateRange } from "react-day-picker";
 
 interface Step1Props {
   availabilityDates?: Date[];
@@ -23,7 +24,10 @@ export default function Step1({ availabilityDates = [] }: Step1Props) {
   
   const [selectedUnit, setSelectedUnit] = useState<UnitType | ''>('');
   const [persons, setPersons] = useState(1);
-  const [selectedDates, setSelectedDates] = useState<{ from?: Date; to?: Date }>({});
+  // const [selectedDates, setSelectedDates] = useState<{ from?: Date; to?: Date }>({});
+const [selectedDates, setSelectedDates] = useState<DateRange>({ from: undefined, to: undefined });
+
+
 
   // Initialize from URL params
   useEffect(() => {
@@ -113,6 +117,7 @@ export default function Step1({ availabilityDates = [] }: Step1Props) {
               <Label>Fechas de Estadía</Label>
               <DayPicker
                 mode="range"
+                required
                 selected={selectedDates}
                 onSelect={setSelectedDates}
                 disabled={disabledDays}

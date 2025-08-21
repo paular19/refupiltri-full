@@ -14,8 +14,8 @@ export async function getAvailabilityForUnit(
   const availabilityDates: AvailabilityDate[] = dates.map((date) => {
     const conflictingReservations = reservations.filter((reservation) => {
       return (
-        date >= reservation.startDate &&
-        date <= reservation.endDate &&
+        date >= reservation.startDate.toDate()  &&
+        date <= reservation.endDate.toDate() &&
         isUnitConflict(unit, reservation.unit)
       );
     });

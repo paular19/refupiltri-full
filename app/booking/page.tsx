@@ -6,13 +6,16 @@ import Step3 from '@/components/BookingForm/Step3';
 import { getAvailabilityForUnit } from '@/lib/availability';
 import { UnitType } from '@/lib/types';
 
+// interface BookingPageProps {
+//   searchParams: { 
+//     step?: string;
+//     unit?: UnitType;
+//     startDate?: string;
+//     endDate?: string;
+//   };
+// }
 interface BookingPageProps {
-  searchParams: { 
-    step?: string;
-    unit?: UnitType;
-    startDate?: string;
-    endDate?: string;
-  };
+  searchParams?: any;
 }
 
 export default async function BookingPage({ searchParams }: BookingPageProps) {

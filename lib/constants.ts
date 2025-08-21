@@ -53,4 +53,7 @@ export const PRICES = {
   breakfast: 1, // per person per day
   lunch: 3000, // per person per day
 };
+
+export type UnitKey = keyof typeof PRICES; 
+
 export const RESERVATION_STATUS = ["pendiente", "confirmada", "cancelada"];

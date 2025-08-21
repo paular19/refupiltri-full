@@ -2,8 +2,8 @@ import { Timestamp } from "firebase/firestore";
 import { NextRequest, NextResponse } from "next/server";
 import { MercadoPagoConfig, Payment } from "mercadopago";
 import {
-  createReservation,
-} from "@/lib/firebase/reservation-server";
+  createReservationAction,
+} from "@/app/actions/reservations";
 import { sendBookingConfirmation } from "@/lib/email";
 import { BookingData } from "@/lib/types";
 import { ORIGIN_TYPES, MP_RESERVATION_STATUS } from "@/lib/constants";
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
         const endDate = new Date(bookingData.endDate);
 
         // Crear reserva en Firestore
-        const reservationId = await createReservation({
+        const reservationId = await createReservationAction({
           ...bookingData,
           origin: ORIGIN_TYPES.Web,
           status: MP_RESERVATION_STATUS.Pendiente,

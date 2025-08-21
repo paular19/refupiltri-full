@@ -4,9 +4,10 @@ import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { UNITS, PRICES } from '@/lib/constants';
+import { UNITS, PRICES, UnitKey } from '@/lib/constants';
 import { format, differenceInDays } from 'date-fns';
 import { es } from 'date-fns/locale';
+
 
 export default function Step3() {
   const searchParams = useSearchParams();
@@ -32,8 +33,8 @@ export default function Step3() {
   
   // Calculate prices
   const basePrice = unitInfo.isIndividual 
-    ? PRICES[unit] * persons * nights
-    : PRICES[unit] * nights;
+    ? PRICES[unit as UnitKey] * persons * nights
+    : PRICES[unit as UnitKey] * nights;
     
   const breakfastPrice = includeBreakfast ? PRICES.breakfast * persons * (nights + 1) : 0;
   const lunchPrice = includeLunch ? PRICES.lunch * persons * (nights + 1) : 0;
