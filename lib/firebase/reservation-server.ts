@@ -4,58 +4,6 @@ import { db, auth, default as admin } from "./config";
 
 const COLLECTION_NAME = "reservations";
 
-export async function createReservation(
-  reservation: Omit<Reservation, "id" | "createdAt" | "updatedAt">
-): Promise<string> {
-  const now = admin.firestore.Timestamp.now();
-
-  // TODO:
-  // fix  this hack. This is because we expect a date but sometimes is a timestamp string, from client.
-  // const startDate =
-  //   reservation.startDate instanceof Date
-  //     ? reservation.startDate
-  //     : new Date(reservation.startDate);
-
-  // const endDate =
-  //   reservation.endDate instanceof Date
-  //     ? reservation.endDate
-  //     : new Date(reservation.endDate);
-
-  const reservationData = {
-    ...reservation,
-    createdAt: now,
-    updatedAt: now,
-    startDate: admin.firestore.Timestamp.fromDate(reservation.startDate),
-    endDate: admin.firestore.Timestamp.fromDate(reservation.endDate),
-  };
-
-  const docRef = await db.collection(COLLECTION_NAME).add(reservationData);
-  return docRef.id;
-}
-
-export async function updateReservation(
-  id: string,
-  data: Partial<Reservation>
-): Promise<void> {
-  const docRef = db.collection(COLLECTION_NAME).doc(id);
-  const updateData: any = {
-    ...data,
-    updatedAt: admin.firestore.Timestamp.now(),
-  };
-
-  if (data.startDate)
-    updateData.startDate = admin.firestore.Timestamp.fromDate(data.startDate);
-  if (data.endDate)
-    updateData.endDate = admin.firestore.Timestamp.fromDate(data.endDate);
-
-  await docRef.update(updateData);
-}
-
-export async function deleteReservation(id: string): Promise<void> {
-  const docRef = db.collection(COLLECTION_NAME).doc(id);
-  await docRef.delete();
-}
-
 export async function getReservations(options: {
   includeHistory?: boolean;
   pageSize?: number;

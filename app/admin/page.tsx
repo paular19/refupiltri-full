@@ -4,13 +4,17 @@ import Reservations from "@/components/Admin/Reservations";
 import Filters from "@/components/Admin/Filters";
 import PathStatusSection from "@/components/Admin/PathStatusSection";
 
+// interface AdminPageProps {
+//   searchParams: {
+//     history?: string;
+//     page?: string;
+//     limit?: string;
+//   };
+// }
 interface AdminPageProps {
-  searchParams: {
-    history?: string;
-    page?: string;
-    limit?: string;
-  };
+  searchParams?: any;
 }
+
 
 // This would be replaced with actual auth check
 async function checkAdminAuth() {

@@ -1,38 +1,33 @@
 import admin from "firebase-admin";
 
-var serviceAccount = require("../../googlekey.json");
+let serviceAccount;
+
+if (process.env.GOOGLE_CREDENTIALS_BASE64) {
+  // Decodificamos el string base64 y lo parseamos a objeto JSON
+  const decoded = Buffer.from(
+    process.env.GOOGLE_CREDENTIALS_BASE64,
+    "base64"
+  ).toString("utf-8");
+
+  serviceAccount = JSON.parse(decoded);
+} else {
+  throw new Error("⚠️ Falta la variable de entorno GOOGLE_CREDENTIALS_BASE64");
+}
 
 if (!admin.apps.length) {
   admin.initializeApp({
-    // If you have a service account JSON file, you can do:
-    // credential: admin.credential.cert(require('/path/to/serviceAccountKey.json')),
-
-    // Or if you want to initialize with default credentials (e.g., if running on GCP)
     credential: admin.credential.cert(serviceAccount),
-    // Optionally specify your projectId
-    projectId: process.env.FIREBASE_PROJECT_ID,
+    projectId: process.env.FIREBASE_PROJECT_ID, // opcional
   });
 
   if (process.env.NODE_ENV === "development") {
     const firestore = admin.firestore();
 
-    //enable storage y auth cuando habilitemos eso
-    //const auth = admin.auth();
-    //const storage = admin.storage();
-    // Connect to Firestore Emulator
-
     firestore.settings({
       host: "127.0.0.1",
       port: 8080,
-      ssl: false, // Change this depending on your emulator setup
+      ssl: false,
     });
-    // Connect to Auth Emulator
-    //auth.useEmulator("http://localhost:9099");
-    // ✅ Connect to Auth Emulator via env var
-    //process.env.FIREBASE_AUTH_EMULATOR_HOST = "localhost:9099";
-    // Connect to Storage Emulator
-    //storage.useEmulator("localhost", 9199);
-    //process.env.FIREBASE_STORAGE_EMULATOR_HOST = "localhost:9199";
   }
 }
 
