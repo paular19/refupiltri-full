@@ -28,7 +28,7 @@ export const Step1 = ({
 
   React.useEffect(() => {
     if (prevUnitRef.current !== selectedUnit.type) {
-      setFormData((prev) => ({
+      setFormData((prev: any) => ({
         ...prev,
         persons: selectedUnit.isIndividual ? 1 : selectedUnit.capacity,
       }));
@@ -146,7 +146,7 @@ export const Step1 = ({
             name="includeBreakfast"
             checked={formData.includeBreakfast  ?? false}
             onChange={(e) =>
-              setFormData((prev) => ({
+              setFormData((prev: any) => ({
                 ...prev,
                 includeBreakfast: e.target.checked,
               }))
@@ -168,7 +168,7 @@ export const Step1 = ({
             name="includeLunch"
             checked={formData.includeLunch  ?? false}
             onChange={(e) =>
-              setFormData((prev) => ({
+              setFormData((prev: any) => ({
                 ...prev,
                 includeLunch: e.target.checked,
               }))
