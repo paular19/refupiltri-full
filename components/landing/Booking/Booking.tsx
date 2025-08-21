@@ -7,13 +7,13 @@ import { Step2 } from "./Step2";
 import { Step1 } from "./Step1";
 import { StepHeaders } from "./StepsHeader";
 import { Info } from "./Info";
-import { ReservationData } from "@/lib/types";
+import { FormReservation } from "@/lib/types";
 import { createReservationAction } from "@/app/actions/reservations";
 
 const Booking = () => {
   const now = new Date().toISOString();
 
-  const [formData, setFormData] = useState<ReservationData>({
+  const [formData, setFormData] = useState<FormReservation>({
     createdAt: now,
     updatedAt: now,
     startDate: now,
@@ -85,7 +85,7 @@ const Booking = () => {
             >
               <StepHeaders currentStep={currentStep} />
 
-              <form action={createReservationAction} className="space-y-6">
+              <form className="space-y-6">
                 {currentStep === 1 && (
                   <Step1
                     formData={formData}

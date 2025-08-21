@@ -1,6 +1,6 @@
-import { ReservationData } from "@/lib/types";
+import { FormReservation } from "@/lib/types";
 
-const calculateNights = (formData: ReservationData) => {
+const calculateNights = (formData: FormReservation) => {
   if (formData.startDate && formData.endDate) {
     const startDate = new Date(formData.startDate);
     const endDate = new Date(formData.endDate);
@@ -11,7 +11,7 @@ const calculateNights = (formData: ReservationData) => {
   return 0;
 };
 
-const getRoomPrice = (formData: ReservationData) => {
+const getRoomPrice = (formData: FormReservation) => {
   const prices: Record<string, number> = {
     refugio: 1,
     camping: 8000,
@@ -22,7 +22,7 @@ const getRoomPrice = (formData: ReservationData) => {
   return prices[formData.unit as keyof typeof prices];
 };
 
-const getTotalPrice = (formData: ReservationData) => {
+const getTotalPrice = (formData: FormReservation) => {
   const nights = calculateNights(formData);
   const roomPrice = getRoomPrice(formData);
   const persons = formData.persons || 1;
@@ -32,7 +32,7 @@ const getTotalPrice = (formData: ReservationData) => {
   return nights * roomPrice * persons + extras;
 };
 
-export const Step3 = ({ formData }: { formData: ReservationData }) => {
+export const Step3 = ({ formData }: { formData: FormReservation }) => {
   const nights = calculateNights(formData);
   const roomPrice = getRoomPrice(formData);
   const persons = formData.persons || 1;
@@ -67,7 +67,9 @@ export const Step3 = ({ formData }: { formData: ReservationData }) => {
         <div className="space-y-2">
           <div className="flex justify-between">
             <span>Fechas:</span>
-            <span>{formData.startDate} - {formData.endDate}</span>
+            <span>
+              {formData.startDate} - {formData.endDate}
+            </span>
           </div>
           <div className="flex justify-between">
             <span>Noches:</span>

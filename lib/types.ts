@@ -5,25 +5,13 @@ export type UnitType =
   | "habitacion1"
   | "habitacion2";
 import { Timestamp } from "firebase-admin/firestore";
+import { MP_RESERVATION_STATUS, ORIGIN_TYPES } from "./constants";
 
 export interface ReservationUnit {
   type: UnitType;
   name: string;
   capacity: number;
   isIndividual: boolean; // true for refugio/camping, false for cabana/habitaciones
-}
-
-export interface BookingData {
-  unit: UnitType;
-  persons: number;
-  startDate: Date;
-  endDate: Date;
-  contactName: string;
-  contactLastName: string;
-  contactEmail: string;
-  contactPhone: string;
-  includeBreakfast: boolean;
-  includeLunch: boolean;
 }
 
 export interface Reservation {
@@ -52,7 +40,7 @@ export interface AvailabilityDate {
   remainingCapacity: number;
 }
 
-export interface ReservationData {
+export interface FormReservation {
   createdAt: string;
   updatedAt: string;
   startDate: string;
@@ -68,3 +56,18 @@ export interface ReservationData {
   includeLunch: boolean | null;
   notifyUser: boolean | null;
 }
+
+export interface BookingData {
+  unit: UnitType;
+  persons: number;
+  startDate: Date;
+  endDate: Date;
+  contactName: string;
+  contactLastName: string;
+  contactEmail: string;
+  contactPhone: string;
+  includeBreakfast: boolean;
+  includeLunch: boolean;
+}
+
+export type ReservationData = any;

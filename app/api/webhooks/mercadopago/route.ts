@@ -1,9 +1,7 @@
 import { Timestamp } from "firebase/firestore";
 import { NextRequest, NextResponse } from "next/server";
 import { MercadoPagoConfig, Payment } from "mercadopago";
-import {
-  createReservationAction,
-} from "@/app/actions/reservations";
+import { createReservationAction } from "@/app/actions/reservations";
 import { sendBookingConfirmation } from "@/lib/email";
 import { BookingData } from "@/lib/types";
 import { ORIGIN_TYPES, MP_RESERVATION_STATUS } from "@/lib/constants";
@@ -29,7 +27,7 @@ export async function POST(request: NextRequest) {
         } catch (err: any) {
           if (err.status === 404) {
             console.warn(`Payment not found, retry attempt ${attempt + 1}...`);
-            await new Promise(r => setTimeout(r, 2000)); // esperar 2s
+            await new Promise((r) => setTimeout(r, 2000)); // esperar 2s
           } else {
             throw err;
           }
@@ -38,7 +36,10 @@ export async function POST(request: NextRequest) {
 
       if (!paymentData) {
         console.error("Payment still not found after retries:", body.data.id);
-        return NextResponse.json({ error: "Payment not found" }, { status: 404 });
+        return NextResponse.json(
+          { error: "Payment not found" },
+          { status: 404 }
+        );
       }
 
       if (paymentData.status === "approved") {
@@ -57,8 +58,8 @@ export async function POST(request: NextRequest) {
           origin: ORIGIN_TYPES.Web,
           status: MP_RESERVATION_STATUS.Pendiente,
           paymentId: paymentData.id?.toString(),
-          startDate: Timestamp.fromDate(startDate),
-          endDate: Timestamp.fromDate(endDate),
+          startDate: startDate,
+          endDate: endDate,
         });
 
         // Enviar email de confirmación
@@ -73,6 +74,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ received: true });
   } catch (error) {
     console.error("Webhook error:", error);
-    return NextResponse.json({ error: "Error processing webhook" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Error processing webhook" },
+      { status: 500 }
+    );
   }
 }
