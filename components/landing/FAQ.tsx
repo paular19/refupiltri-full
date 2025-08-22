@@ -9,7 +9,7 @@ const FAQ = () => {
   const faqs = [
     {
       question: "¿Cómo llego al refugio?",
-      answer: "Te compartimos las opciones de acceso y traslado.",
+      answer: "Te compartimos las opciones de acceso y traslado. (aquí deberíamos agregar una descripción de como llegar y en el boton poner un contacto de wpp para traslados)",
       action: "Opciones →",
       icon: "/icono1-faq.png",
     },
