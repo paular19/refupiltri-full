@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import Image from "next/image";
 
@@ -5,15 +6,24 @@ const Promos = () => {
   const promos = [
     {
       name: "PROMO\nCACIQUE",
-      price: "$150.000 por persona",
+      price: "$150.000 x persona",
+      description:
+        "Pernocte, desayuno, almuerzo y cena con vino (asado libre)",
+      extra: "$120.000 x persona (si son 4 o más)",
     },
     {
       name: "PROMO\nCÓNDOR",
-      price: "$120.000 por persona",
+      price: "$120.000 x persona",
+      description:
+        "Pernocte, desayuno, almuerzo y cena a elección (menú de refugio)",
+      extra: "$90.000 x persona (si son 4 o más)",
     },
     {
       name: "PROMO\nHALCÓN",
       price: "$65.000 por persona",
+      description:
+        "Promo pensada para escapadas más cortas, con todo lo esencial incluido.",
+      extra: "$65.000 x persona",
     },
   ];
 
@@ -52,32 +62,82 @@ const Promos = () => {
             {promos.map((promo, index) => (
               <div
                 key={index}
-                className="relative rounded-[10px] shadow-xl overflow-hidden transition-all duration-300 h-[500px] w-[96%] mx-auto group"
-                style={{ backgroundColor: promoBgColors[index] }}
+                className="relative rounded-[10px] shadow-xl overflow-hidden transition-all duration-300 h-[550px] w-[96%] mx-auto group flex flex-col"
               >
-                <div className="p-6 text-left text-[#F7F8FA] group-hover:opacity-0 transition-opacity duration-300 h-full flex flex-col justify-between">
+                {/* Vista inicial */}
+                <div
+                  className="absolute inset-0 flex flex-col justify-between p-6 text-left text-[#F7F8FA] transition-opacity duration-300 group-hover:opacity-0"
+                  style={{ backgroundColor: promoBgColors[index] }}
+                >
                   <h3 className="text-[1.75rem] font-poppins font-normal leading-tight whitespace-pre-line">
                     {promo.name}
                   </h3>
                   <div className="w-full mt-auto">
-                    <hr
-                      className="border-t border-[#F7F8FA] w-full mb-2"
-                      style={{ borderWidth: "1px" }}
-                    />
+                    <hr className="border-t border-[#F7F8FA] w-full mb-2" />
                     <span className="block text-sm leading-tight font-montserrat font-light text-[#F7F8FA] uppercase">
                       CABAÑA
                       <br />
-                      HASTA 8 PX
+                      HASTA 8 PAX
                     </span>
                   </div>
                 </div>
-                <div
-                  className="absolute inset-0 rounded-[10px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center"
-                  style={{ backgroundColor: promoBgColors[index] }}
-                >
-                  <span className="text-white text-xl font-poppins font-semibold">
-                    {promo.price}
-                  </span>
+
+                {/* Vista hover */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col">
+                  {/* Header con color */}
+                  <div
+                    className="p-6 flex flex-row items-center justify-between"
+                    style={{ backgroundColor: promoBgColors[index] }}
+                  >
+                    <h3 className="text-[1.75rem] font-poppins font-normal text-white leading-tight whitespace-pre-line">
+                      {promo.name}
+                    </h3>
+                    <span className="text-sm font-montserrat font-light text-white uppercase">
+                      CABAÑA <br /> HASTA 8 PAX
+                    </span>
+                  </div>
+
+                  {/* Body blanco */}
+                  <div className="bg-white flex-1 flex flex-col justify-between px-6 py-8">
+                    {/* Arriba: sticker y descripción corta */}
+                    <div className="flex flex-col items-start">
+                      <div className="h-12 w-12 mb-4 relative">
+                        <Image
+                          src="/mate.png"
+                          alt="Mate"
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                      <p className="text-sm font-montserrat font-light text-dark-navy">
+                        {promo.description.split(".")[0]}.
+                      </p>
+                    </div>
+
+                    {/* Abajo: precio y extras */}
+                    <div className="flex flex-col items-start mt-6">
+                      <hr
+                        className="border-t w-full mb-2"
+                        style={{
+                          borderColor: promoBgColors[index],
+                          borderWidth: "1px",
+                        }}
+                      />
+                      <span className="text-2xl font-poppins font-semibold text-dark-navy mb-2">
+                        {promo.price}
+                      </span>
+                      <hr
+                        className="border-t w-full mt-2"
+                        style={{
+                          borderColor: promoBgColors[index],
+                          borderWidth: "1px",
+                        }}
+                      />
+                      <p className="text-sm font-montserrat font-light text-dark-navy mt-2">
+                        {promo.extra}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
@@ -88,46 +148,92 @@ const Promos = () => {
             {additionalServices.map((service, index) => (
               <div
                 key={index}
-                className="relative rounded-[10px] shadow-lg p-8 hover:shadow-xl transition-shadow duration-300 group"
-                style={{
-                  backgroundColor: service.color,
-                  width: "96%",
-                  margin: "0 auto",
-                }}
+                className="relative rounded-[10px] shadow-lg overflow-hidden transition-all duration-300 h-[250px] w-[96%] mx-auto group flex flex-col"
               >
-                <div className="text-left group-hover:opacity-0 transition-opacity duration-300">
+                {/* Vista inicial */}
+                <div
+                  className="absolute inset-0 flex flex-col justify-between p-8 transition-opacity duration-300 group-hover:opacity-0"
+                  style={{ backgroundColor: service.color }}
+                >
                   <h3
-                    className={`text-[1.75rem] font-poppins font-normal leading-tight whitespace-pre-line mb-6 ${
-                      index === 0 ? "text-[#1A222B]" : "text-[#F7F8FA]"
+                    className={`text-[1.75rem] font-poppins font-normal leading-tight whitespace-pre-line ${
+                      index === 0 ? "text-dark-navy" : "text-white"
                     }`}
                   >
                     {service.name}
                   </h3>
+
+                  {/* Línea divisoria inicial */}
                   <hr
-                    className={`border-t w-full mb-2 ${
-                      index === 0 ? "border-[#1A222B]" : "border-[#F7F8FA]"
-                    }`}
-                    style={{ borderWidth: "1px" }}
+                    className="border-t w-full mb-2"
+                    style={{
+                      borderColor: index === 0 ? "#1A222B" : "#fff",
+                      borderWidth: "1px",
+                      marginTop: "0.5rem",
+                    }}
                   />
+
                   <p
-                    className={`text-sm leading-tight font-montserrat font-light ${
-                      index === 0 ? "text-[#1A222B]" : "text-[#F7F8FA]"
+                    className={`text-sm font-montserrat font-light ${
+                      index === 0 ? "text-dark-navy" : "text-white"
                     }`}
                   >
                     {service.footer}
                   </p>
                 </div>
-                <div
-                  className="absolute inset-0 rounded-[10px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center"
-                  style={{ backgroundColor: service.color }}
-                >
-                  <span className="text-white text-xl font-poppins font-semibold">
-                    {service.price}
-                  </span>
+
+                {/* Vista hover */}
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col">
+                  {/* Header */}
+                  <div
+                    className="p-6 flex flex-row items-center justify-between"
+                    style={{ backgroundColor: service.color }}
+                  >
+                    <h3
+                      className={`text-[1.75rem] font-poppins font-normal leading-tight whitespace-pre-line ${
+                        index === 0 ? "text-dark-navy" : "text-white"
+                      }`}
+                    >
+                      {service.name}
+                    </h3>
+                  </div>
+
+                  {/* Body blanco */}
+                  <div className="bg-white flex-1 flex flex-col justify-between px-6 py-8">
+                    <div className="flex flex-col items-start">
+                      <div className="h-12 w-12 mb-4 relative">
+                        <Image
+                          src="/mate.png"
+                          alt="Sticker"
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                      <p className="text-sm font-montserrat font-light text-dark-navy">
+                        {service.footer}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-start mt-6">
+                      {/* Línea divisoria hover */}
+                      <hr
+                        className="border-t w-full mb-2"
+                        style={{
+                          borderColor: index === 0 ? "#1A222B" : service.color,
+                          borderWidth: "1px",
+                          marginTop: "0.5rem",
+                        }}
+                      />
+                      <span className="text-2xl font-poppins font-semibold text-dark-navy mb-2">
+                        {service.price} por noche
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
+
+          {/* Sección descuento residentes */}
           <div className="p-8 mt-24" style={{ width: "96%", margin: "0 auto" }}>
             <div className="flex flex-col sm:flex-row items-start gap-6">
 
@@ -166,20 +272,7 @@ const Promos = () => {
               </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Imagen final */}
-      <section id="img-promo" className="pt-0 pb-0">
-        <div className="w-full h-[60vh] relative">
-          <Image
-            src="/img-banda.jpg"
-            alt="Imagen Banda"
-            fill
-            className="object-cover"
-            style={{ objectPosition: "center 85%" }}
-            priority
-          />
         </div>
       </section>
     </>
