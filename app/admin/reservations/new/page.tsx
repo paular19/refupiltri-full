@@ -1,4 +1,7 @@
+// app/admin/reservations/new/page.tsx
 import { createReservationAction } from "../../../actions/reservations";
+import { sendBookingConfirmation, reservationToBookingData } from "@/lib/email";
+import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,8 +21,28 @@ import { formToReservationData } from "@/lib/utils";
 export default async function NewReservationPage() {
   const handleAction = async (formData: FormData) => {
     "use server";
-    const reservation = formToReservationData(formData);
-    await createReservationAction(reservation);
+    
+    try {
+      const reservation = formToReservationData(formData);
+      const shouldNotify = formData.get("notifyUser") === "on";
+      
+      // Crear reserva
+      const reservationId = await createReservationAction(reservation);
+      
+      // Enviar email solo si el checkbox está marcado Y hay email
+      if (shouldNotify && reservation.contactEmail) {
+        const bookingData = reservationToBookingData(reservation);
+        await sendBookingConfirmation(bookingData, reservationId, true);
+      }
+      
+      console.log("Admin reservation created:", reservationId, "Email sent:", shouldNotify);
+      
+    } catch (error) {
+      console.error("Error creating admin reservation:", error);
+      throw error;
+    }
+    
+    redirect("/admin");
   };
 
   return (
@@ -167,7 +190,7 @@ export default async function NewReservationPage() {
               </CardContent>
             </Card>
             <div className="flex fle-row justify-end">
-              <Button type="submit">Crear</Button>
+              <Button type="submit">Crear Reserva</Button>
             </div>
           </form>
         </div>

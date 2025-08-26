@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
         });
 
         // Enviar email de confirmación
-        await sendBookingConfirmation(bookingData, reservationId);
+        await sendBookingConfirmation(bookingData, reservationId, false);
 
         console.log("Reservation created:", reservationId);
       } else {

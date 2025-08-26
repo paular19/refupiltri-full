@@ -114,12 +114,6 @@ export default function Reservations({ reservations }: ReservationsProps) {
                   </TableCell>
                   <TableCell className="flex gap-2">
                     <Link
-                      href={`/admin/reservations/${reservation.id}`}
-                      className="text-blue-600 hover:underline"
-                    >
-                      Ver
-                    </Link>
-                    <Link
                       href={`/admin/reservations/${reservation.id}/edit`}
                       className="text-blue-600 hover:underline"
                     >

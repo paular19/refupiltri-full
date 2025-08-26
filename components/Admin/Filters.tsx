@@ -54,7 +54,9 @@ export default function Filters({ searchParams }: any): any {
 
       <div className="flex justify-end btn">
         <Link href={"/admin/reservations/new"}>
-          <Button>Nueva Reserva</Button>
+          <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Nueva Reserva</button>
         </Link>
       </div>
     </div>
