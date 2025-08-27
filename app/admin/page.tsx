@@ -1,36 +1,24 @@
 import { redirect } from "next/navigation";
 import { getReservations } from "@/lib/firebase/reservation-server";
+import { checkAdminAuth } from "@/lib/auth/server"; // ← Importar función real
 import Reservations from "@/components/Admin/Reservations";
 import Filters from "@/components/Admin/Filters";
 import PathStatusSection from "@/components/Admin/PathStatusSection";
 
-// interface AdminPageProps {
-//   searchParams: {
-//     history?: string;
-//     page?: string;
-//     limit?: string;
-//   };
-// }
 interface AdminPageProps {
   searchParams?: any;
 }
 
-
-// This would be replaced with actual auth check
-async function checkAdminAuth() {
-  // TODO: Implement Firebase Auth check for admin user
-  return true;
-}
 export const dynamic = "force-dynamic";
+
 export default async function AdminPage({ searchParams }: AdminPageProps) {
+  // ← Ahora usa la función real que verifica la cookie
   const isAuthorized = await checkAdminAuth();
 
   if (!isAuthorized) {
     redirect("/admin/login");
   }
 
-  // TODO: move this into getReservations
-  // this should be the pattern in SSR but we have also a hook for client.
   const includeHistory = (await searchParams)?.history === "true" || false;
   const limit = parseInt((await searchParams)?.limit || "20");
 
