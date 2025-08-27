@@ -1,6 +1,7 @@
 // app/admin/reservations/new/page.tsx
 import { createReservationAction } from "../../../actions/reservations";
-import { sendBookingConfirmation, reservationToBookingData } from "@/lib/email";
+import { sendBookingConfirmation } from "@/lib/email";
+import { reservationToBookingData } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
