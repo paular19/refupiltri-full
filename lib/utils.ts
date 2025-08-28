@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { ReservationData } from "./types";
+import { ReservationData, BookingData } from "./types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -27,3 +27,18 @@ export const formToReservationData = (formData: FormData): ReservationData => {
       formData.get("includeLunch") === "true",
   };
 };
+
+export function reservationToBookingData(reservation: any): BookingData {
+  return {
+    unit: reservation.unit,
+    persons: reservation.persons,
+    startDate: reservation.startDate instanceof Date ? reservation.startDate : reservation.startDate.toDate(),
+    endDate: reservation.endDate instanceof Date ? reservation.endDate : reservation.endDate.toDate(),
+    contactName: reservation.contactName || '',
+    contactLastName: reservation.contactLastName || '',
+    contactEmail: reservation.contactEmail || '',
+    contactPhone: reservation.contactPhone || '',
+    includeBreakfast: reservation.includeBreakfast || false,
+    includeLunch: reservation.includeLunch || false,
+  };
+}
