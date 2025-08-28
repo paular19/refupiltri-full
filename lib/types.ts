@@ -18,8 +18,8 @@ export interface Reservation {
   id: string;
   unit: UnitType;
   persons: number;
-  startDate: Timestamp;
-  endDate: Timestamp;
+  startDate: string;
+  endDate: string;
   contactName: string;
   contactLastName: string;
   contactEmail: string;

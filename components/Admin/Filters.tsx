@@ -34,7 +34,7 @@ export default function Filters({ searchParams }: any): any {
             checked={includeHistory}
             onCheckedChange={handleHistoryToggle}
           />
-          <label htmlFor="history">Incluir historial</label>
+          <label htmlFor="history">Solo Finalizadas</label>
         </div>
 
         <div className="flex items-center space-x-2">
@@ -55,8 +55,11 @@ export default function Filters({ searchParams }: any): any {
       <div className="flex justify-end btn">
         <Link href={"/admin/reservations/new"}>
           <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Nueva Reserva</button>
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Nueva Reserva
+          </button>
         </Link>
       </div>
     </div>

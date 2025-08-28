@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import {
   Table,
   TableBody,
@@ -7,38 +9,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import LoadMore from "./LoadMore";
 import { Reservation } from "@/lib/types";
 import { UNITS } from "@/lib/constants";
-import { es } from "date-fns/locale";
-import Link from "next/link";
-import LoadMore from "./LoadMore";
-import { format } from "date-fns";
 
 interface ReservationsProps {
   reservations: Reservation[];
 }
 
 export default function Reservations({ reservations }: ReservationsProps) {
-  // given a status of a reservation return a Badge component with the color variant for that status
-  const getStatusBadge = (status: string) => {
-    let variant: "default" | "secondary" | "destructive";
-
-    switch (status) {
-      case "confirmed":
-        variant = "default";
-        break;
-      case "pending":
-        variant = "secondary";
-        break;
-      case "cancelled":
-        variant = "destructive";
-        break;
-      default:
-        variant = "secondary";
-    }
-    return <Badge variant={variant}>{status}</Badge>;
-  };
-
   return (
     <div className="space-y-6">
       {reservations.length === 0 ? (
@@ -83,15 +62,9 @@ export default function Reservations({ reservations }: ReservationsProps) {
                     </p>
                   </TableCell>
                   <TableCell>
-                    <p className="text-sm">
-                      {format(reservation.startDate.toDate(), "dd/MM/yyyy", {
-                        locale: es,
-                      })}
-                    </p>
+                    <p className="text-sm">{reservation.startDate}</p>
                     <p className="text-sm text-muted-foreground">
-                      {format(reservation.endDate.toDate(), "dd/MM/yyyy", {
-                        locale: es,
-                      })}
+                      {reservation.endDate}
                     </p>
                   </TableCell>
                   <TableCell>

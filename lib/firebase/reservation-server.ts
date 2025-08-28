@@ -14,10 +14,11 @@ export async function getReservations(options: {
     .firestore()
     .collection(COLLECTION_NAME);
 
-  if (!includeHistory) {
-    const today = admin.firestore.Timestamp.now();
-    queryRef = queryRef.where("endDate", ">=", today);
+  if (includeHistory) {
+    const today = new Date().toISOString();
+    queryRef = queryRef.where("endDate", "<=", today);
   }
+
   queryRef = queryRef.orderBy("endDate", "desc");
 
   if (lastDocId) {
@@ -43,10 +44,6 @@ export async function getReservations(options: {
     return {
       id: doc.id,
       ...data,
-      startDate: data.startDate,
-      endDate: data.endDate,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
     } as Reservation;
   });
 
@@ -85,8 +82,6 @@ export async function getReservationsInDateRange(
     return {
       id: doc.id,
       ...data,
-      startDate: data.startDate.toDate(),
-      endDate: data.endDate.toDate(),
       createdAt: data.createdAt.toDate(),
       updatedAt: data.updatedAt.toDate(),
     } as Reservation;
