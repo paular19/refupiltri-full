@@ -48,18 +48,12 @@ export async function POST(request: NextRequest) {
           paymentData.metadata?.booking_data || "{}"
         );
 
-        // Convertir strings a Date para Firestore
-        const startDate = new Date(bookingData.startDate);
-        const endDate = new Date(bookingData.endDate);
-
         // Crear reserva en Firestore
         const reservationId = await createReservationAction({
           ...bookingData,
           origin: ORIGIN_TYPES.Web,
-          status: MP_RESERVATION_STATUS.Pendiente,
+          status: paymentData.status,
           paymentId: paymentData.id?.toString(),
-          startDate: startDate,
-          endDate: endDate,
         });
 
         // Enviar email de confirmación

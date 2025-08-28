@@ -59,10 +59,13 @@ const Booking = () => {
         throw new Error(err.error || "Error al crear la preferencia");
       }
 
-      const { preferenceId } = await res.json();
-
-      // Redirigir al checkout de Mercado Pago
-      window.location.href = `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=${preferenceId}`;
+      if (!process.env.NEXT_PUBLIC_AVOID_MP) {
+        const { preferenceId } = await res.json();
+        // Redirigir al checkout de Mercado Pago
+        window.location.href = `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=${preferenceId}`;
+      } else {
+        alert("OK! estas en localhost y se agrego la reserva. ");
+      }
     } catch (err) {
       console.error("Error creando preferencia:", err);
       alert("Hubo un problema al iniciar el pago. Intenta nuevamente.");
