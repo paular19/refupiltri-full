@@ -1,10 +1,9 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/contexts/AuthContext';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/contexts/AuthContext";
 import LogoGoogle from "@/components/ui/logoGoogle";
-
 
 export default function AdminLoginPage() {
   const { user, loading, isAdmin, signInWithGoogle } = useAuth();
@@ -15,7 +14,7 @@ export default function AdminLoginPage() {
   // Si ya está logueado como admin, redirigir al panel
   useEffect(() => {
     if (!loading && user && isAdmin) {
-      router.push('/admin');
+      router.push("/admin");
     }
   }, [user, isAdmin, loading, router]);
 
@@ -27,8 +26,8 @@ export default function AdminLoginPage() {
       await signInWithGoogle();
       // El useEffect se encarga de la redirección
     } catch (error: any) {
-      console.error('Error en login:', error);
-      setError(error.message || 'Error al iniciar sesión');
+      console.error("Error en login:", error);
+      setError(error.message || "Error al iniciar sesión");
     } finally {
       setIsLoggingIn(false);
     }

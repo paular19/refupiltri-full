@@ -4,6 +4,8 @@ import { checkAdminAuth } from "@/lib/auth/server"; // ← Importar función rea
 import Reservations from "@/components/Admin/Reservations";
 import Filters from "@/components/Admin/Filters";
 import PathStatusSection from "@/components/Admin/PathStatusSection";
+import { LogOut } from "@/components/Admin/LogOut";
+import Link from "next/link";
 
 interface AdminPageProps {
   searchParams?: any;
@@ -16,7 +18,14 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   const isAuthorized = await checkAdminAuth();
 
   if (!isAuthorized) {
-    redirect("/admin/login");
+    return (
+      <div>
+        No authroizado todavia...{" "}
+        <Link className="btn btn-primary" href="/admin/login">
+          Logueate
+        </Link>
+      </div>
+    );
   }
 
   const includeHistory = (await searchParams)?.history === "true" || false;
@@ -35,9 +44,12 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold">Panel de Administración</h1>
           </div>
+          <div className="float-right ml-2">
+            <LogOut />
+          </div>
           <Filters searchParams={searchParams} />
           <Reservations reservations={reservations} />
-          <PathStatusSection/>
+          <PathStatusSection />
         </div>
       </div>
     </div>
