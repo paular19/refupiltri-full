@@ -40,6 +40,11 @@ export async function getReservations(options: {
 
   const reservations = snapshot.docs.map((doc) => {
     const data = doc.data();
+     console.log(`=== RESERVA ${doc.id} ===`);
+    console.log("Raw startDate:", data.startDate);
+    console.log("Raw endDate:", data.endDate);
+    console.log("StartDate toDate():", data.startDate.toDate?.()?.toISOString());
+    console.log("EndDate toDate():", data.endDate.toDate?.()?.toISOString());
     return {
       id: doc.id,
       ...data,
@@ -62,12 +67,12 @@ export async function getReservationsInDateRange(
   startDate: Date,
   endDate: Date
 ): Promise<Reservation[]> {
-  const startTimestamp =
-    startDate instanceof Date ? startDate : new Date(startDate);
-  const endTimestamp = endDate instanceof Date ? endDate : new Date(endDate);
-
-  // Firestore limita múltiples inequalities en la misma consulta, cuidado con filtros complejos
-  // Aquí un workaround sin filtro status != 'cancelled' porque admin.firestore no soporta '!=' directamente
+  const startTimestamp = admin.firestore.Timestamp.fromDate(
+    startDate instanceof Date ? startDate : new Date(startDate)
+  );
+  const endTimestamp = admin.firestore.Timestamp.fromDate(
+    endDate instanceof Date ? endDate : new Date(endDate)
+  );
 
   const snapshot = await db
     .collection(COLLECTION_NAME)
@@ -75,7 +80,6 @@ export async function getReservationsInDateRange(
     .where("endDate", ">=", startTimestamp)
     .get();
 
-  // Filtrar cancelados en el backend (ya que no podemos hacer '!=' directo)
   const filtered = snapshot.docs.filter(
     (doc) => doc.data().status !== "cancelled"
   );
@@ -85,10 +89,11 @@ export async function getReservationsInDateRange(
     return {
       id: doc.id,
       ...data,
-      startDate: data.startDate.toDate(),
-      endDate: data.endDate.toDate(),
-      createdAt: data.createdAt.toDate(),
-      updatedAt: data.updatedAt.toDate(),
+      // Convertir siempre a Date para consistencia
+      startDate: data.startDate?.toDate?.() || new Date(data.startDate),
+      endDate: data.endDate?.toDate?.() || new Date(data.endDate),
+      createdAt: data.createdAt?.toDate?.() || new Date(data.createdAt),
+      updatedAt: data.updatedAt?.toDate?.() || new Date(data.updatedAt),
     } as Reservation;
   });
 }

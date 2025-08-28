@@ -52,8 +52,8 @@ const [selectedDates, setSelectedDates] = useState<DateRange>({ from: undefined,
     const params = new URLSearchParams({
       unit: selectedUnit,
       persons: persons.toString(),
-      startDate: selectedDates.from.toISOString(),
-      endDate: selectedDates.to.toISOString(),
+      startDate: selectedDates.from.toLocaleDateString("es-AR"),
+      endDate: selectedDates.to.toLocaleDateString("es-AR"),
       step: '2',
     });
 

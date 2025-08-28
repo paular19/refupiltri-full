@@ -8,16 +8,19 @@ import { Step1 } from "./Step1";
 import { StepHeaders } from "./StepsHeader";
 import { Info } from "./Info";
 import { FormReservation } from "@/lib/types";
-import { createReservationAction } from "@/app/actions/reservations";
 
 const Booking = () => {
-  const now = new Date().toISOString();
+  // Crear fechas en timezone local para evitar problemas de zona horaria
+  const today = new Date();
+  const todayStr = today.getFullYear() + "-" + 
+    String(today.getMonth() + 1).padStart(2, '0') + "-" + 
+    String(today.getDate()).padStart(2, '0');
 
   const [formData, setFormData] = useState<FormReservation>({
-    createdAt: now,
-    updatedAt: now,
-    startDate: now,
-    endDate: now,
+    createdAt: todayStr,
+    updatedAt: todayStr,
+    startDate: todayStr,
+    endDate: todayStr,
     contactName: "",
     contactLastName: "",
     contactEmail: "",
@@ -46,12 +49,22 @@ const Booking = () => {
 
   const handleCreateBooking = async () => {
     try {
+      // Crear objetos Date en timezone local para las fechas
+      const startDate = new Date(formData.startDate + "T00:00:00"); // Forzar medianoche local
+      const endDate = new Date(formData.endDate + "T00:00:00"); // Forzar medianoche local
+      
+      const bookingData = {
+        ...formData,
+        startDate,
+        endDate,
+      };
+
       const res = await fetch("/api/create-payment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(bookingData),
       });
 
       if (!res.ok) {
