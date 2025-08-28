@@ -2,6 +2,7 @@ import { UnitType, AvailabilityDate } from "./types";
 import { UNITS } from "./constants";
 import { getReservationsInDateRange } from "./firebase/reservation-server";
 import { eachDayOfInterval, isSameDay } from "date-fns";
+import admin from "./firebase/config";
 
 export async function getAvailabilityForUnit(
   unit: UnitType,
@@ -13,12 +14,21 @@ export async function getAvailabilityForUnit(
 
   const availabilityDates: AvailabilityDate[] = dates.map((date) => {
     const conflictingReservations = reservations.filter((reservation) => {
+      // Convertir timestamps a fechas para comparación
+      const resStartDate = reservation.startDate instanceof admin.firestore.Timestamp 
+        ? reservation.startDate.toDate() 
+        : new Date(reservation.startDate);
+      const resEndDate = reservation.endDate instanceof admin.firestore.Timestamp 
+        ? reservation.endDate.toDate() 
+        : new Date(reservation.endDate);
+      
       return (
-        date >= reservation.startDate.toDate()  &&
-        date <= reservation.endDate.toDate() &&
+        date >= resStartDate &&
+        date <= resEndDate &&
         isUnitConflict(unit, reservation.unit)
       );
     });
+
 
     const occupiedCapacity = calculateOccupiedCapacity(
       unit,

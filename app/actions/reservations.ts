@@ -9,10 +9,81 @@ const COLLECTION_NAME = "reservations";
 export async function createReservationAction(
   reservation: ReservationData
 ): Promise<string> {
-  console.log(reservation);
+  console.log("Datos recibidos:", reservation);
+  
   const now = admin.firestore.Timestamp.now();
-  const doc = await db.collection(COLLECTION_NAME).add(reservation);
+
+  // Normalizar fechas antes de guardar
+  const normalizedReservation = {
+    ...reservation,
+    startDate: normalizeDateToTimestamp(reservation.startDate),
+    endDate: normalizeDateToTimestamp(reservation.endDate),
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  console.log("Datos normalizados:", normalizedReservation);
+  console.log("StartDate como Date:", normalizedReservation.startDate.toDate());
+  console.log("EndDate como Date:", normalizedReservation.endDate.toDate());
+  const doc = await db.collection(COLLECTION_NAME).add(normalizedReservation);
   return doc.id;
+}
+
+function normalizeDateToTimestamp(date: any): admin.firestore.Timestamp {
+  console.log("Normalizando fecha:", date, "Tipo:", typeof date);
+  
+  if (date instanceof admin.firestore.Timestamp) {
+    return date;
+  }
+  
+  if (date instanceof Date) {
+    console.log("Es Date, timestamp directo:", date.toISOString());
+    return admin.firestore.Timestamp.fromDate(date);
+  }
+  
+  if (typeof date === 'string') {
+    console.log("Es string:", date);
+    
+    // Para formato ISO con timezone
+    if (date.includes('T') && (date.endsWith('Z') || date.includes('+') || date.includes('-'))) {
+      const parsedDate = new Date(date);
+      console.log("Fecha parseada ISO:", parsedDate.toISOString());
+      return admin.firestore.Timestamp.fromDate(parsedDate);
+    }
+    
+    // Para formato YYYY-MM-DD - CREAR EN TIMEZONE LOCAL
+    if (date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      const parts = date.split("-");
+      const parsedDate = new Date(
+        Number(parts[0]), // year
+        Number(parts[1]) - 1, // month (0-indexed)
+        Number(parts[2]), // day
+        0, 0, 0, 0 // hora, minuto, segundo, milisegundo
+      );
+      console.log("Fecha parseada YYYY-MM-DD (local):", parsedDate.toISOString());
+      return admin.firestore.Timestamp.fromDate(parsedDate);
+    }
+    
+    // Para formato DD/MM/YYYY - CREAR EN TIMEZONE LOCAL
+    if (date.match(/^\d{1,2}\/\d{1,2}\/\d{4}$/)) {
+      const parts = date.split("/");
+      const parsedDate = new Date(
+        Number(parts[2]), // year
+        Number(parts[1]) - 1, // month (0-indexed)
+        Number(parts[0]), // day
+        0, 0, 0, 0 // hora, minuto, segundo, milisegundo
+      );
+      console.log("Fecha parseada DD/MM/YYYY (local):", parsedDate.toISOString());
+      return admin.firestore.Timestamp.fromDate(parsedDate);
+    }
+    
+    // Para otros formatos, intentar parseo directo
+    const parsedDate = new Date(date);
+    console.log("Fecha parseada genérica:", parsedDate.toISOString());
+    return admin.firestore.Timestamp.fromDate(parsedDate);
+  }
+  
+  throw new Error(`Formato de fecha no válido: ${date}`);
 }
 
 // Read
@@ -48,21 +119,12 @@ export async function updateReservationAction(
     updatedAt: admin.firestore.Timestamp.now(),
   };
 
-  // Convertir fechas desde el formulario
   if (data.startDate) {
-    if (data.startDate instanceof Date) {
-      updateData.startDate = admin.firestore.Timestamp.fromDate(data.startDate);
-    } else if (typeof data.startDate === 'string') {
-      updateData.startDate = admin.firestore.Timestamp.fromDate(new Date(data.startDate));
-    }
+    updateData.startDate = normalizeDateToTimestamp(data.startDate);
   }
 
   if (data.endDate) {
-    if (data.endDate instanceof Date) {
-      updateData.endDate = admin.firestore.Timestamp.fromDate(data.endDate);
-    } else if (typeof data.endDate === 'string') {
-      updateData.endDate = admin.firestore.Timestamp.fromDate(new Date(data.endDate));
-    }
+    updateData.endDate = normalizeDateToTimestamp(data.endDate);
   }
 
   await docRef.update(updateData);

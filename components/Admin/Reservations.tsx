@@ -39,6 +39,29 @@ export default function Reservations({ reservations }: ReservationsProps) {
     return <Badge variant={variant}>{status}</Badge>;
   };
 
+  // Función para formatear fechas de manera consistente
+  const formatReservationDate = (dateField: any) => {
+    try {
+      // Si es un Timestamp de Firebase
+      if (dateField?.toDate && typeof dateField.toDate === 'function') {
+        return format(dateField.toDate(), "dd/MM/yyyy", { locale: es });
+      }
+      // Si ya es un objeto Date
+      if (dateField instanceof Date) {
+        return format(dateField, "dd/MM/yyyy", { locale: es });
+      }
+      // Si es un string, intentar parsearlo
+      if (typeof dateField === 'string') {
+        return format(new Date(dateField), "dd/MM/yyyy", { locale: es });
+      }
+      // Fallback
+      return "Fecha inválida";
+    } catch (error) {
+      console.error("Error formateando fecha:", error, dateField);
+      return "Fecha inválida";
+    }
+  };
+
   return (
     <div className="space-y-6">
       {reservations.length === 0 ? (
@@ -84,14 +107,10 @@ export default function Reservations({ reservations }: ReservationsProps) {
                   </TableCell>
                   <TableCell>
                     <p className="text-sm">
-                      {format(reservation.startDate.toDate(), "dd/MM/yyyy", {
-                        locale: es,
-                      })}
+                      {formatReservationDate(reservation.startDate)}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {format(reservation.endDate.toDate(), "dd/MM/yyyy", {
-                        locale: es,
-                      })}
+                      {formatReservationDate(reservation.endDate)}
                     </p>
                   </TableCell>
                   <TableCell>
@@ -108,7 +127,7 @@ export default function Reservations({ reservations }: ReservationsProps) {
                       <Badge variant="secondary">No</Badge>
                     )}
                   </TableCell>
-                  <TableCell>{reservation.status}</TableCell>
+                  <TableCell>{getStatusBadge(reservation.status)}</TableCell>
                   <TableCell>
                     <Badge variant="outline">{reservation.origin}</Badge>
                   </TableCell>
