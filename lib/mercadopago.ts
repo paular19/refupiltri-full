@@ -51,12 +51,12 @@ export async function createPaymentPreference(bookingData: BookingData): Promise
     },
     },
     back_urls: {
-      success: `${process.env.NEXT_PUBLIC_APP_URL}/booking/success`,
-      failure: `${process.env.NEXT_PUBLIC_APP_URL}/booking/failure`,
-      pending: `${process.env.NEXT_PUBLIC_APP_URL}/booking/pending`,
+      success: `${process.env.NEXT_PUBLIC_RETURN_URL}/booking/success`,
+      failure: `${process.env.NEXT_PUBLIC_RETURN_URL}/booking/failure`,
+      pending: `${process.env.NEXT_PUBLIC_RETURN_URL}/booking/pending`,
     },
     auto_return: 'approved',
-    notification_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/mercadopago`,
+    notification_url: `${process.env.NEXT_PUBLIC_RETURN_URL}/api/webhooks/mercadopago`,
     metadata: {
       booking_data: JSON.stringify(bookingData),
     },
