@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     // 4. Guardar cookie en el navegador
     const cookieStore = await cookies();
     cookieStore.set("session", sessionCookie, {
-      maxAge: expiresIn,
+      maxAge: Math.floor(expiresIn / 1000), 
       httpOnly: true, // Solo el servidor puede leerla
       secure: process.env.NODE_ENV === "production",
       path: "/",
