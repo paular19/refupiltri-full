@@ -7,17 +7,17 @@ import LogoGoogle from "@/components/ui/logoGoogle";
 
 
 export default function AdminLoginPage() {
-  const { user, loading, isAdmin, signInWithGoogle } = useAuth();
+  const { user, authLoading, adminLoading, isAdmin, signInWithGoogle } = useAuth();
   const router = useRouter();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Si ya está logueado como admin, redirigir al panel
   useEffect(() => {
-    if (!loading && user && isAdmin) {
+    if (!authLoading && !adminLoading && user && isAdmin) {
       router.push('/admin');
     }
-  }, [user, isAdmin, loading, router]);
+  }, [user, isAdmin, authLoading, adminLoading, router]);
 
   const handleLogin = async () => {
     setIsLoggingIn(true);
@@ -35,12 +35,45 @@ export default function AdminLoginPage() {
   };
 
   // Mostrar loading mientras verifica autenticación
-  if (loading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Verificando autenticación...</p>
+        </div>
+      </div>
+    );
+  }
+    if (!authLoading && user && adminLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Verificando permisos de administrador...</p>
+        </div>
+      </div>
+    );
+  }
+  // Si el usuario ya está logueado pero no es admin, mostrar error
+  if (user && !isAdmin && !authLoading && !adminLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="max-w-md w-full space-y-8 p-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-red-600 mb-2">
+              Acceso Denegado
+            </h2>
+            <p className="text-gray-600">
+              Tu cuenta {user.email} no tiene permisos de administrador
+            </p>
+            <button
+              onClick={() => signInWithGoogle().catch(() => {})}
+              className="mt-4 text-indigo-600 hover:text-indigo-500"
+            >
+              Intentar con otra cuenta
+            </button>
+          </div>
         </div>
       </div>
     );

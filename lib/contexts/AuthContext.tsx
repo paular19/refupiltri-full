@@ -12,7 +12,8 @@ import { ADMIN_EMAILS } from "@/lib/constants";
 
 interface AuthContextType {
   user: User | null;
-  loading: boolean;
+  authLoading: boolean; 
+  adminLoading: boolean;
   isAdmin: boolean;
   signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
@@ -22,30 +23,40 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  // Verificar si el usuario es administrador
-  const isAdmin = user ? ADMIN_EMAILS.includes(user.email || "") : false;
+  const [authLoading, setAuthLoading] = useState(true);
+  const [adminLoading, setAdminLoading] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
-      setLoading(false);
+      setIsAdmin(false);
+      setAuthLoading(false);
 
       if (user && ADMIN_EMAILS.includes(user.email || "")) {
+        setAdminLoading(true);
         // Crear sesión en el servidor
         try {
           const idToken = await user.getIdToken();
-          await fetch("/api/auth/session", {
+          const response = await fetch("/api/auth/session", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({ idToken }),
           });
+          if (response.ok) {
+            console.log("✅ Sesión creada exitosamente");
+            setIsAdmin(true);
+          }
         } catch (error) {
-          console.error("Error creando sesión:", error);
+          console.error("❌ Error creando sesión:", error);
         }
+       finally {
+          setAdminLoading(false); 
+        }
+      } else {
+        setAdminLoading(false); 
       }
     });
 
@@ -58,13 +69,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Verificar si el usuario es administrador
       if (!ADMIN_EMAILS.includes(result.user.email || "")) {
-        await signOut(auth);
-        throw new Error("No tienes permisos de administrador");
-      }
+        setIsAdmin(false);
+        return;
+      }  
 
-      // La creación de sesión se maneja en el useEffect
     } catch (error) {
-      console.error("Error durante el login:", error);
+      console.error("❌ Error durante el login:", error);
       throw error;
     }
   };
@@ -78,8 +88,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Cerrar sesión en el cliente
       await signOut(auth);
+      setIsAdmin(false);
+      console.log("✅ Logout exitoso");
     } catch (error) {
-      console.error("Error durante el logout:", error);
+      console.error("❌ Error durante el logout:", error);
       throw error;
     }
   };
@@ -88,7 +100,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
-        loading,
+        authLoading,
+        adminLoading,
         isAdmin,
         signInWithGoogle,
         logout,
