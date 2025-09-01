@@ -10,8 +10,9 @@ import { Info } from "./Info";
 import { FormReservation } from "@/lib/types";
 import { createReservationAction } from "@/app/actions/reservations";
 
+
 const Booking = () => {
-  const now = new Date().toISOString();
+  const now = new Date().toISOString().split('T')[0];
 
   const [formData, setFormData] = useState<FormReservation>({
     createdAt: now,
