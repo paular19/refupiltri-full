@@ -15,7 +15,7 @@ export async function getReservations(options: {
     .collection(COLLECTION_NAME);
 
   if (includeHistory) {
-    const today = new Date().toISOString();
+    const today = new Date().toISOString().split("T")[0];
     queryRef = queryRef.where("endDate", "<=", today);
   }
 
@@ -56,34 +56,80 @@ export async function getReservations(options: {
 }
 
 export async function getReservationsInDateRange(
-  startDate: Date,
-  endDate: Date
+  startDate: String,
+  endDate: String
 ): Promise<Reservation[]> {
-  const startTimestamp =
-    startDate instanceof Date ? startDate : new Date(startDate);
-  const endTimestamp = endDate instanceof Date ? endDate : new Date(endDate);
+  try {
+    // Convertir fechas a strings en formato YYYY-MM-DD para comparar con Firestore
+    const startDateString = startDate;
+    const endDateString = endDate;
+
+    console.log('Querying reservations between:', startDate, 'and', endDate);
+
 
   // Firestore limita múltiples inequalities en la misma consulta, cuidado con filtros complejos
   // Aquí un workaround sin filtro status != 'cancelled' porque admin.firestore no soporta '!=' directamente
 
   const snapshot = await db
     .collection(COLLECTION_NAME)
-    .where("startDate", "<=", endTimestamp)
-    .where("endDate", ">=", startTimestamp)
+    .where("startDate", "<=", endDate)
+    .where("endDate", ">=", startDate)
     .get();
+    console.log('Found reservations:', snapshot.size);
 
-  // Filtrar cancelados en el backend (ya que no podemos hacer '!=' directo)
-  const filtered = snapshot.docs.filter(
-    (doc) => doc.data().status !== "cancelled"
-  );
 
-  return filtered.map((doc) => {
-    const data = doc.data();
-    return {
-      id: doc.id,
-      ...data,
-      createdAt: data.createdAt.toDate(),
-      updatedAt: data.updatedAt.toDate(),
-    } as Reservation;
-  });
+  const reservations = snapshot.docs
+      .filter((doc) => {
+        const data = doc.data();
+        return data.status !== "cancelled";
+      })
+      .map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          // Convertir timestamps a Date si existen y son del tipo Timestamp
+          createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
+          updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt,
+        } as Reservation;
+      });
+
+    console.log('Active reservations after filtering:', reservations.length);
+    
+    return reservations;
+  } catch (error) {
+    console.error('Error in getReservationsInDateRange:', error);
+    throw error;
+  }
+}
+
+export async function getReservationsForUnit(
+  unit: string,
+  startDate: string,
+  endDate: string
+): Promise<Reservation[]> {
+  try {
+
+    const snapshot = await db
+      .collection(COLLECTION_NAME)
+      .where("unit", "==", unit)
+      .where("startDate", "<=", endDate)
+      .where("endDate", ">=", startDate)
+      .get();
+
+    return snapshot.docs
+      .filter((doc) => doc.data().status !== "cancelled")
+      .map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
+          updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt,
+        } as Reservation;
+      });
+  } catch (error) {
+    console.error('Error in getReservationsForUnit:', error);
+    throw error;
+  }
 }

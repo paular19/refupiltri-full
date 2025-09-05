@@ -1,32 +1,64 @@
-import { UnitType, AvailabilityDate } from "./types";
+// lib/availability.ts
+import { UnitType, AvailabilityDate, Reservation } from "./types";
 import { UNITS } from "./constants";
 import { getReservationsInDateRange } from "./firebase/reservation-server";
-import { eachDayOfInterval, isSameDay } from "date-fns";
 
+// Devuelve la disponibilidad de un unit entre fechas (strings 'YYYY-MM-DD')
 export async function getAvailabilityForUnit(
   unit: UnitType,
-  startDate: Date,
-  endDate: Date
+  startDate: string,
+  endDate: string
 ): Promise<AvailabilityDate[]> {
-  const reservations = await getReservationsInDateRange(startDate, endDate);
-  const dates = eachDayOfInterval({ start: startDate, end: endDate });
+
+  const reservations: Reservation[] = await getReservationsInDateRange(startDate, endDate);
+
+  const dates: string[] = [];
+  let [y, m, d] = startDate.split('-').map(Number);
+  let [ey, em, ed] = endDate.split('-').map(Number);
+
+  let currentY = y;
+  let currentM = m;
+  let currentD = d;
+
+  function pad(n: number) {
+    return n.toString().padStart(2, '0');
+  }
+
+  while (
+    currentY < ey ||
+    (currentY === ey && currentM < em) ||
+    (currentY === ey && currentM === em && currentD <= ed)
+  ) {
+    dates.push(`${currentY}-${pad(currentM)}-${pad(currentD)}`);
+
+    currentD += 1;
+    const daysInMonth = new Date(currentY, currentM, 0).getDate();
+    if (currentD > daysInMonth) {
+      currentD = 1;
+      currentM += 1;
+      if (currentM > 12) {
+        currentM = 1;
+        currentY += 1;
+      }
+    }
+  }
 
   const availabilityDates: AvailabilityDate[] = dates.map((date) => {
     const conflictingReservations = reservations.filter((reservation) => {
-      return (
-        date.toISOString() >= reservation.startDate &&
-        date.toISOString() <= reservation.endDate &&
-        isUnitConflict(unit, reservation.unit)
-      );
+      const isDateInRange = reservation.startDate <= date && date <= reservation.endDate;
+      const isUnitConflicting = isUnitConflict(unit, reservation.unit as UnitType);
+      const isNotCancelled = reservation.status !== "cancelled";
+      return isDateInRange && isUnitConflicting && isNotCancelled;
     });
 
-    const occupiedCapacity = calculateOccupiedCapacity(
-      unit,
-      conflictingReservations,
-      date
-    );
-    const totalCapacity = UNITS[unit].capacity;
-    const remainingCapacity = totalCapacity - occupiedCapacity;
+    let remainingCapacity: number;
+
+    if (!UNITS[unit].isIndividual) {
+      remainingCapacity = conflictingReservations.length > 0 ? 0 : UNITS[unit].capacity;
+    } else {
+      const occupied = conflictingReservations.reduce((sum, r) => sum + r.persons, 0);
+      remainingCapacity = UNITS[unit].capacity - occupied;
+    }
 
     return {
       date,
@@ -38,61 +70,55 @@ export async function getAvailabilityForUnit(
   return availabilityDates;
 }
 
-function isUnitConflict(unit1: UnitType, unit2: UnitType): boolean {
-  // Same unit always conflicts
+// Verifica si dos unidades confligen (ej. cabaña vs habitaciones)
+export function isUnitConflict(unit1: UnitType, unit2: UnitType): boolean {
   if (unit1 === unit2) return true;
 
-  // Cabaña conflicts with both habitaciones
-  if (
-    unit1 === "cabana" &&
-    (unit2 === "habitacion1" || unit2 === "habitacion2")
-  )
+  const cabanaRooms = ["habitacion1", "habitacion2"];
+  if ((unit1 === "cabana" && cabanaRooms.includes(unit2)) ||
+      (unit2 === "cabana" && cabanaRooms.includes(unit1))) {
     return true;
-  if (
-    unit2 === "cabana" &&
-    (unit1 === "habitacion1" || unit1 === "habitacion2")
-  )
-    return true;
+  }
 
-  // Habitaciones conflict with cabaña (already covered above)
   return false;
 }
 
-function calculateOccupiedCapacity(
-  unit: UnitType,
-  conflictingReservations: any[],
-  date: Date
-): number {
-  if (!UNITS[unit].isIndividual) {
-    // For cabana/habitaciones, if there's any reservation, it's fully occupied
-    return conflictingReservations.length > 0 ? UNITS[unit].capacity : 0;
-  }
-
-  // For refugio/camping, sum up the persons
-  return conflictingReservations.reduce((sum, reservation) => {
-    return sum + reservation.persons;
-  }, 0);
-}
-
-export async function checkAvailability( 
+// Chequea disponibilidad para un rango y cantidad de personas
+export async function checkAvailability(
   unit: UnitType,
   persons: number,
-  startDate: Date,
-  endDate: Date
-): Promise<boolean> {
-  return true //cambiar cuando ya este todo validado
-  console.log(startDate);
-  console.log(endDate);
+  startDate: string,
+  endDate: string
+): Promise<{ available: boolean; message?: string }> {
   const availability = await getAvailabilityForUnit(unit, startDate, endDate);
 
-  // Check if all dates in the range are available
-  return availability.every((dateAvailability) => {
-    if (!UNITS[unit].isIndividual) {
-      // For cabana/habitaciones, just check availability
-      return dateAvailability.available;
-    }
-
-    // For refugio/camping, check if there's enough capacity
-    return dateAvailability.remainingCapacity >= persons;
+  const allDatesAvailable = availability.every(d => {
+    return !UNITS[unit].isIndividual ? d.available : d.remainingCapacity >= persons;
   });
+
+  if (!allDatesAvailable) {
+    const unavailableDates = availability
+      .filter(d => !UNITS[unit].isIndividual ? !d.available : d.remainingCapacity < persons)
+      .map(d => d.date);
+    return {
+      available: false,
+      message: `Las siguientes fechas no están disponibles: ${unavailableDates.join(", ")}`
+    };
+  }
+
+  return { available: true };
+}
+
+// Devuelve las fechas no disponibles como strings 'YYYY-MM-DD'
+export async function getUnavailableDates(
+  unit: UnitType,
+  persons: number = 1,
+  startDate: string,
+  endDate: string
+): Promise<string[]> {
+  const availability = await getAvailabilityForUnit(unit, startDate, endDate);
+
+  return availability
+    .filter(d => !UNITS[unit].isIndividual ? !d.available : d.remainingCapacity < persons)
+    .map(d => d.date);
 }

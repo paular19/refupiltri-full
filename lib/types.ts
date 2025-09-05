@@ -35,7 +35,7 @@ export interface Reservation {
 }
 
 export interface AvailabilityDate {
-  date: Date;
+  date: string;
   available: boolean;
   remainingCapacity: number;
 }
