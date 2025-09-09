@@ -49,20 +49,6 @@ export async function createReservationAction(
   }
 }
 
-// Create with override (for admin use)
-export async function createReservationWithOverride(
-  reservation: ReservationData
-): Promise<string> {
-  const reservationWithTimestamps = {
-    ...reservation,
-    createdAt: admin.firestore.Timestamp.now(),
-    updatedAt: admin.firestore.Timestamp.now(),
-  };
-
-  console.log("Creating reservation with admin override:", reservationWithTimestamps);
-  const doc = await db.collection(COLLECTION_NAME).add(reservationWithTimestamps);
-  return doc.id;
-}
 
 // Read
 export async function getReservationById(
