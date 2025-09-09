@@ -56,8 +56,13 @@ export async function POST(request: NextRequest) {
           paymentId: paymentData.id?.toString(),
         });
 
+        if (!reservationId.success || !reservationId.id) {
+          console.error("No se pudo crear la reserva:", reservationId.error);
+          return NextResponse.json({ error: "Reservation creation failed" }, { status: 500 });
+        }
+
         // Enviar email de confirmación
-        await sendBookingConfirmation(bookingData, reservationId, false);
+        await sendBookingConfirmation(bookingData, reservationId.id, false);
 
         console.log("Reservation created:", reservationId);
       } else {

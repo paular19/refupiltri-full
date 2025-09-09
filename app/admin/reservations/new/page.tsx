@@ -22,27 +22,31 @@ import { formToReservationData } from "@/lib/utils";
 export default async function NewReservationPage() {
   const handleAction = async (formData: FormData) => {
     "use server";
-    
+
     try {
       const reservation = formToReservationData(formData);
       const shouldNotify = formData.get("notifyUser") === "on";
-      
+
       // Crear reserva
       const reservationId = await createReservationAction(reservation);
-      
+
+      if (!reservationId.success || !reservationId.id) {
+        throw new Error(reservationId.error ?? "No se pudo crear la reserva");
+      }
+
       // Enviar email solo si el checkbox está marcado Y hay email
       if (shouldNotify && reservation.contactEmail) {
         const bookingData = reservationToBookingData(reservation);
-        await sendBookingConfirmation(bookingData, reservationId, true);
+        await sendBookingConfirmation(bookingData, reservationId.id, true);
       }
-      
+
       console.log("Admin reservation created:", reservationId, "Email sent:", shouldNotify);
-      
+
     } catch (error) {
       console.error("Error creating admin reservation:", error);
       throw error;
     }
-    
+
     redirect("/admin");
   };
 

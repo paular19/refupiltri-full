@@ -60,8 +60,8 @@ export interface FormReservation {
 export interface BookingData {
   unit: UnitType;
   persons: number;
-  startDate: Date;
-  endDate: Date;
+  startDate: string;
+  endDate: string;
   contactName: string;
   contactLastName: string;
   contactEmail: string;
