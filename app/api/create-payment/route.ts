@@ -5,6 +5,7 @@ import { BookingData } from "@/lib/types";
 import { checkAvailability } from "@/lib/availability";
 import { createReservationAction } from "@/app/actions/reservations";
 import { ORIGIN_TYPES } from "@/lib/constants";
+import { sendBookingConfirmation } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,12 +28,23 @@ export async function POST(request: NextRequest) {
 
     // Create Mercado Pago preference
     if (process.env.NEXT_PUBLIC_AVOID_MP) {
-      await createReservationAction({
+      const reservationResult = await createReservationAction({
         ...bookingData,
         origin: ORIGIN_TYPES.Web,
         status: "sin mp",
         paymentId: "666",
       });
+
+      if (!reservationResult.success || !reservationResult.id) {
+        return NextResponse.json(
+          { error: "No se pudo crear la reserva de prueba" },
+          { status: 500 }
+        );
+      }
+
+      // Enviar email de confirmación (mismo flujo que en webhook real)
+      await sendBookingConfirmation(bookingData, reservationResult.id, false);
+
       return NextResponse.json({ prefereneId: "666" });
     } else {
       const preferenceId = await createPaymentPreference(bookingData);
