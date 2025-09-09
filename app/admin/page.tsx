@@ -18,14 +18,8 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
   const isAuthorized = await checkAdminAuth();
 
   if (!isAuthorized) {
-    return (
-      <div>
-        No authroizado todavia...{" "}
-        <Link className="btn btn-primary" href="/admin/login">
-          Logueate
-        </Link>
-      </div>
-    );
+    // Redirige al login si no está autorizado
+    redirect("/admin/login");
   }
 
   const includeHistory = (await searchParams)?.history === "true" || false;

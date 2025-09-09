@@ -11,8 +11,12 @@ export const LogOut = () => {
     await redirect("/");
   };
   return (
-    <Button variant="outline" color="primary" onClick={handleLogout}>
-      salir
+    <Button
+      className="px-4 py-2 rounded"
+      style={{ backgroundColor: '#f87171', color: 'white' }} 
+      onClick={handleLogout}
+    >
+      Salir
     </Button>
   );
 };

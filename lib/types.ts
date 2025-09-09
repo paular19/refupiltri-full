@@ -55,6 +55,8 @@ export interface FormReservation {
   includeBreakfast: boolean | null;
   includeLunch: boolean | null;
   notifyUser: boolean | null;
+  origin?: "web" | "admin" | null;
+  status?: "pending" | "confirmed" | "cancelled" | null;
 }
 
 export interface BookingData {
