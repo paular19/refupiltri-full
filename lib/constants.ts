@@ -15,7 +15,7 @@ export const UNITS: Record<string, ReservationUnit> = {
   refugio: {
     type: "refugio",
     name: "Refugio",
-    capacity: 35,
+    capacity: 20,
     isIndividual: true,
   },
   camping: {
