@@ -50,50 +50,44 @@ export const UNITS: Record<string, ReservationUnit> = {
   },
 };
 
-export const PRICES = {
-  refugio: 1, // per person per night 22000
-  camping: 13000, // per person per night
-  cabana: 200000, // total per night
-  habitacion1: {
-    // Precios por número de personas para habitación Este
-    2: 100000,
-    3: 140000,
-    4: 150000,
-  },
-  habitacion2: {
-    // Precios por número de personas para habitación Oeste
-    2: 100000,
-    3: 140000,
-  },
-  breakfast: 1, // per person per day
-  lunch: 3000, // per person per day
+type PriceValue = number | Record<number, number>;
+
+export const PRICES: Record<string, PriceValue> = {
+  refugio: 1,
+  camping: 13000,
+  cabana: 200000,
+  habitacion1: { 2: 100000, 3: 140000, 4: 150000 },
+  habitacion2: { 2: 100000, 3: 140000 },
+  breakfast: 1,
+  lunch: 3000,
   residentDiscount: 3000,
 };
 
 // Función helper para obtener el precio de una habitación según el número de personas
-export const getRoomPrice = (unitType: string, persons: number): number => {
-  const price = PRICES[unitType as keyof typeof PRICES];
-  
-  if (typeof price === 'number') {
-    return price;
-  }
-  
-  if (typeof price === 'object' && price !== null) {
-    return (price as Record<number, number>)[persons] || 0;
-  }
-  
+export const getRoomPrice = (unitType: UnitKey, persons: number): number => {
+  const price = PRICES[unitType];
+
+  if (typeof price === 'number') return price;
+  if (typeof price === 'object' && price !== null) return price[persons] || 0;
+
   return 0;
 };
 
+
 // Función helper para obtener el descuento de residente
-export const getResidentDiscount = (unitType: string, persons: number, nights: number, isResident: boolean): number => {
+export const getResidentDiscount = (
+  unitType: string,
+  persons: number,
+  nights: number,
+  isResident: boolean
+): number => {
   if (!isResident) return 0;
-  
+
   // Solo aplicar descuento para refugio y camping
   if (unitType === 'refugio' || unitType === 'camping') {
-    return PRICES.residentDiscount * persons * nights;
+    return (PRICES.residentDiscount as number) * persons * nights;
   }
-  
+
   return 0;
 };
 

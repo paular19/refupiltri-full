@@ -1,6 +1,6 @@
 import { MercadoPagoConfig, Preference } from 'mercadopago';
 import { BookingData } from './types';
-import { PRICES, UNITS } from './constants';
+import { getRoomPrice, PRICES, UNITS } from './constants';
 import { differenceInDays } from 'date-fns';
 
 const client = new MercadoPagoConfig({
@@ -13,21 +13,22 @@ export async function createPaymentPreference(bookingData: BookingData): Promise
 
   const nights = differenceInDays(bookingData.endDate, bookingData.startDate);
   const unit = UNITS[bookingData.unit];
-  
+
   // Calculate base price
   let basePrice: number;
   if (unit.isIndividual) {
-    basePrice = PRICES[bookingData.unit] * bookingData.persons * nights;
+    basePrice = getRoomPrice(unit.type, bookingData.persons) * bookingData.persons * nights;
   } else {
-    basePrice = PRICES[bookingData.unit] * nights;
+    basePrice = getRoomPrice(unit.type, bookingData.persons) * nights;
   }
 
-  // Calculate extras
-  const breakfastPrice = bookingData.includeBreakfast 
-    ? PRICES.breakfast * bookingData.persons * (nights + 1) 
+  // Calculate  TODO VER SI LO PONEMOS
+  const breakfastPrice = bookingData.includeBreakfast
+    ? (PRICES.breakfast as number) * bookingData.persons * (nights + 1)
     : 0;
-  const lunchPrice = bookingData.includeLunch 
-    ? PRICES.lunch * bookingData.persons * (nights + 1) 
+
+  const lunchPrice = bookingData.includeLunch
+    ? (PRICES.lunch as number) * bookingData.persons * (nights + 1)
     : 0;
 
   const totalPrice = basePrice + breakfastPrice + lunchPrice;
@@ -46,9 +47,9 @@ export async function createPaymentPreference(bookingData: BookingData): Promise
       name: bookingData.contactName,
       surname: bookingData.contactLastName || "",
       email: bookingData.contactEmail,
-     phone: {
-      number: String(bookingData.contactPhone || ""),
-    },
+      phone: {
+        number: String(bookingData.contactPhone || ""),
+      },
     },
     back_urls: {
       success: `${process.env.NEXT_PUBLIC_RETURN_URL}/booking/success`,
@@ -64,5 +65,5 @@ export async function createPaymentPreference(bookingData: BookingData): Promise
 
   const response = await preference.create({ body: preferenceData });
   console.log("Preference created:", response);
-  return response.id!; 
+  return response.id!;
 }

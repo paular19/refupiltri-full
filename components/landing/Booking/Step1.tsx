@@ -102,7 +102,7 @@ export const Step1 = ({
   React.useEffect(() => {
     if (prevUnitRef.current !== selectedUnit.type) {
       // Al cambiar de habitación, establecer el número apropiado de personas
-      let defaultPersons;
+      let defaultPersons: number;
       
       if (selectedUnit.isIndividual) {
         defaultPersons = 1;

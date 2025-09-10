@@ -29,6 +29,7 @@ const Booking = () => {
     includeBreakfast: false,
     includeLunch: false,
     notifyUser: true,
+    isResident: false, 
   });
 
   const [currentStep, setCurrentStep] = useState(1);

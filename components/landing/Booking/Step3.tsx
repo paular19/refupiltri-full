@@ -15,14 +15,14 @@ const calculateNights = (formData: FormReservation) => {
 // Función para calcular descuento de residente
 const getResidentDiscount = (formData: FormReservation) => {
   if (!formData.isResident) return 0;
-  
+
   // Solo aplicar descuento para refugio y camping
   if (formData.unit === 'refugio' || formData.unit === 'camping') {
     const nights = calculateNights(formData);
     const persons = formData.persons || 1;
     return 3000 * persons * nights; // $3000 por persona por noche
   }
-  
+
   return 0;
 };
 
@@ -30,10 +30,10 @@ const getRoomTotalPrice = (formData: FormReservation) => {
   const nights = calculateNights(formData);
   const persons = formData.persons || 1;
   const unitType = formData.unit || 'refugio';
-  
+
   // Obtener el precio base por noche usando la función helper
   const basePrice = getRoomPrice(unitType, persons);
-  
+
   // Para habitaciones individuales, multiplicar por personas y noches
   const selectedUnit = UNITS[unitType];
   if (selectedUnit?.isIndividual) {
@@ -42,25 +42,42 @@ const getRoomTotalPrice = (formData: FormReservation) => {
     const discount = getResidentDiscount(formData);
     return Math.max(0, totalPrice - discount); // No permitir precios negativos
   }
-  
+
   // Para habitaciones grupales, el precio ya está calculado para el grupo completo
   return basePrice * nights;
 };
+
 
 const getExtrasPrice = (formData: FormReservation) => {
   const nights = calculateNights(formData);
   const persons = formData.persons || 1;
   let extras = 0;
-  
+
   if (formData.includeBreakfast) {
-    extras += PRICES.breakfast * persons * nights;
+    extras += (PRICES.breakfast as number) * persons * nights;
   }
   if (formData.includeLunch) {
-    extras += PRICES.lunch * persons * nights;
+    extras += (PRICES.lunch as number) * persons * nights;
   }
-  
+
   return extras;
 };
+
+//TODO VER SI SE AGREGA 
+// const getExtrasPrice = (formData: FormReservation) => {
+//   const nights = calculateNights(formData);
+//   const persons = formData.persons || 1;
+//   let extras = 0;
+
+//   if (formData.includeBreakfast) {
+//     extras += PRICES.breakfast * persons * nights;
+//   }
+//   if (formData.includeLunch) {
+//     extras += PRICES.lunch * persons * nights;
+//   }
+
+//   return extras;
+// };
 
 const getTotalPrice = (formData: FormReservation) => {
   return getRoomTotalPrice(formData) + getExtrasPrice(formData);
@@ -71,13 +88,21 @@ export const Step3 = ({ formData }: { formData: FormReservation }) => {
   const persons = formData.persons || 1;
   const unitType = formData.unit || 'refugio';
   const selectedUnit = UNITS[unitType];
-  
+
   // Precios calculados
   const roomTotalPrice = getRoomTotalPrice(formData);
   const baseRoomPrice = getRoomPrice(unitType, persons);
   const residentDiscount = getResidentDiscount(formData); // CORREGIDO: era calculateResidentDiscount
-  const breakfastTotalPrice = formData.includeBreakfast ? PRICES.breakfast * persons * nights : 0;
-  const lunchTotalPrice = formData.includeLunch ? PRICES.lunch * persons * nights : 0;
+  const breakfastTotalPrice = formData.includeBreakfast
+    ? (PRICES.breakfast as number) * persons * nights
+    : 0;
+
+  const lunchTotalPrice = formData.includeLunch
+    ? (PRICES.lunch as number) * persons * nights
+    : 0;
+  //TODO VER SI SE AGREGA 
+  // const breakfastTotalPrice = formData.includeBreakfast ? PRICES.breakfast * persons * nights : 0;
+  // const lunchTotalPrice = formData.includeLunch ? PRICES.lunch * persons * nights : 0;
 
   return (
     <div className="space-y-6">
@@ -124,7 +149,7 @@ export const Step3 = ({ formData }: { formData: FormReservation }) => {
             <span>Habitación:</span>
             <span>{selectedUnit?.name || unitType}</span>
           </div>
-          
+
           {/* Mostrar precio base diferente según el tipo */}
           {selectedUnit?.isIndividual ? (
             <div className="flex justify-between">
@@ -145,7 +170,7 @@ export const Step3 = ({ formData }: { formData: FormReservation }) => {
               <span>-${residentDiscount.toLocaleString('es-AR')}</span>
             </div>
           )}
-          
+
           <div className="flex justify-between font-semibold">
             <span>Subtotal habitación:</span>
             <span>${roomTotalPrice.toLocaleString('es-AR')}</span>

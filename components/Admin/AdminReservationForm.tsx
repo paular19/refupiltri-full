@@ -162,7 +162,7 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
   const prevUnitRef = React.useRef<string | null>(null);
   React.useEffect(() => {
     if (prevUnitRef.current !== selectedUnit.type && !isEditMode) {
-      let defaultPersons;
+      let defaultPersons: number;
       
       if (selectedUnit.isIndividual) {
         defaultPersons = 1;
