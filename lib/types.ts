@@ -12,6 +12,9 @@ export interface ReservationUnit {
   name: string;
   capacity: number;
   isIndividual: boolean; // true for refugio/camping, false for cabana/habitaciones
+  allowGuestSelection?: boolean; // Nueva propiedad opcional
+  minGuests?: number; // Nueva propiedad opcional
+  maxGuests?: number; 
 }
 
 export interface Reservation {
@@ -32,6 +35,7 @@ export interface Reservation {
   reason?: string; // For admin bookings/blocks
   createdAt: Timestamp;
   updatedAt: Timestamp;
+  isResident?: boolean;
 }
 
 export interface AvailabilityDate {
@@ -57,6 +61,7 @@ export interface FormReservation {
   notifyUser: boolean | null;
   origin?: "web" | "admin" | null;
   status?: "pending" | "confirmed" | "cancelled" | null;
+  isResident: boolean | null;
 }
 
 export interface BookingData {

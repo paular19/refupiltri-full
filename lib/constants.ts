@@ -35,23 +35,66 @@ export const UNITS: Record<string, ReservationUnit> = {
     name: "Habitación Este",
     capacity: 4,
     isIndividual: false,
+    allowGuestSelection: true, // Nueva propiedad para permitir selección de huéspedes
+    minGuests: 2, // Mínimo de huéspedes
+    maxGuests: 4, // Máximo de huéspedes
   },
   habitacion2: {
     type: "habitacion2",
     name: "Habitación Oeste",
-    capacity: 4,
+    capacity: 3,
     isIndividual: false,
+    allowGuestSelection: true, // Nueva propiedad para permitir selección de huéspedes
+    minGuests: 2, // Mínimo de huéspedes
+    maxGuests: 3, // Máximo de huéspedes
   },
 };
 
 export const PRICES = {
-  refugio: 1, // per person per night
-  camping: 3000, // per person per night
-  cabana: 40000, // total per night
-  habitacion1: 20000, // total per night
-  habitacion2: 20000, // total per night
+  refugio: 1, // per person per night 22000
+  camping: 13000, // per person per night
+  cabana: 200000, // total per night
+  habitacion1: {
+    // Precios por número de personas para habitación Este
+    2: 100000,
+    3: 140000,
+    4: 150000,
+  },
+  habitacion2: {
+    // Precios por número de personas para habitación Oeste
+    2: 100000,
+    3: 140000,
+  },
   breakfast: 1, // per person per day
   lunch: 3000, // per person per day
+  residentDiscount: 3000,
+};
+
+// Función helper para obtener el precio de una habitación según el número de personas
+export const getRoomPrice = (unitType: string, persons: number): number => {
+  const price = PRICES[unitType as keyof typeof PRICES];
+  
+  if (typeof price === 'number') {
+    return price;
+  }
+  
+  if (typeof price === 'object' && price !== null) {
+    return (price as Record<number, number>)[persons] || 0;
+  }
+  
+  return 0;
+};
+
+// Función helper para obtener el descuento de residente
+export const getResidentDiscount = (unitType: string, persons: number, nights: number, isResident: boolean): number => {
+  if (!isResident) return 0;
+  
+  // Solo aplicar descuento para refugio y camping
+  if (unitType === 'refugio' || unitType === 'camping') {
+    return PRICES.residentDiscount * persons * nights;
+  }
+  
+  return 0;
 };
 
 export type UnitKey = keyof typeof PRICES;
