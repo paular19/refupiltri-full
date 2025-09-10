@@ -56,8 +56,16 @@ export async function getAvailabilityForUnit(
     if (!UNITS[unit].isIndividual) {
       remainingCapacity = conflictingReservations.length > 0 ? 0 : UNITS[unit].capacity;
     } else {
-      const occupied = conflictingReservations.reduce((sum, r) => sum + r.persons, 0);
-      remainingCapacity = UNITS[unit].capacity - occupied;
+      // Lógica especial para el refugio
+      if (unit === "refugio") {
+        remainingCapacity = calculateRefugioCapacity(date, reservations);
+        // Restar las personas ya reservadas en refugio
+        const refugioOccupied = conflictingReservations.reduce((sum, r) => sum + r.persons, 0);
+        remainingCapacity -= refugioOccupied;
+      } else {
+        const occupied = conflictingReservations.reduce((sum, r) => sum + r.persons, 0);
+        remainingCapacity = UNITS[unit].capacity - occupied;
+      }
     }
 
     return {
@@ -68,6 +76,33 @@ export async function getAvailabilityForUnit(
   });
 
   return availabilityDates;
+}
+
+// Nueva función para calcular la capacidad del refugio basada en reservas de cabaña/habitaciones
+function calculateRefugioCapacity(date: string, reservations: Reservation[]): number {
+  const activeReservationsForDate = reservations.filter((reservation) => {
+    const isDateInRange = reservation.startDate <= date && date <= reservation.endDate;
+    const isNotCancelled = reservation.status !== "cancelled";
+    return isDateInRange && isNotCancelled;
+  });
+
+  // Verificar si la cabaña está reservada
+  const cabanaReserved = activeReservationsForDate.some(r => r.unit === "cabana");
+  
+  // Verificar habitaciones reservadas
+  const habitacion1Reserved = activeReservationsForDate.some(r => r.unit === "habitacion1");
+  const habitacion2Reserved = activeReservationsForDate.some(r => r.unit === "habitacion2");
+  
+  // Aplicar lógica de capacidad del refugio
+  if (cabanaReserved) {
+    return 10; // Si la cabaña está reservada, refugio tiene capacidad de 10
+  } else if (habitacion1Reserved && habitacion2Reserved) {
+    return 10; // Si ambas habitaciones están reservadas, refugio tiene capacidad de 10
+  } else if (habitacion1Reserved || habitacion2Reserved) {
+    return 15; // Si solo una habitación está reservada, refugio tiene capacidad de 15
+  } else {
+    return 20; // Capacidad completa del refugio
+  }
 }
 
 // Verifica si dos unidades confligen (ej. cabaña vs habitaciones)
@@ -90,23 +125,71 @@ export async function checkAvailability(
   startDate: string,
   endDate: string
 ): Promise<{ available: boolean; message?: string }> {
-  const availability = await getAvailabilityForUnit(unit, startDate, endDate);
-
-  const allDatesAvailable = availability.every(d => {
-    return !UNITS[unit].isIndividual ? d.available : d.remainingCapacity >= persons;
-  });
-
-  if (!allDatesAvailable) {
-    const unavailableDates = availability
-      .filter(d => !UNITS[unit].isIndividual ? !d.available : d.remainingCapacity < persons)
-      .map(d => d.date);
+  // Validación adicional de entrada
+  if (!unit || !persons || !startDate || !endDate) {
     return {
       available: false,
-      message: `Las siguientes fechas no están disponibles: ${unavailableDates.join(", ")}`
+      message: "Parámetros de reserva incompletos"
     };
   }
 
-  return { available: true };
+  if (persons <= 0) {
+    return {
+      available: false,
+      message: "El número de personas debe ser mayor a cero"
+    };
+  }
+
+  // Validar que la fecha de inicio sea anterior o igual a la fecha de fin
+  if (startDate > endDate) {
+    return {
+      available: false,
+      message: "La fecha de inicio debe ser anterior o igual a la fecha de fin"
+    };
+  }
+
+  // Validar capacidad máxima de la unidad
+  const unitCapacity = UNITS[unit]?.capacity;
+  if (!unitCapacity) {
+    return {
+      available: false,
+      message: "Unidad de reserva no válida"
+    };
+  }
+
+  if (UNITS[unit].isIndividual && persons > unitCapacity) {
+    return {
+      available: false,
+      message: `La unidad ${UNITS[unit].name} tiene una capacidad máxima de ${unitCapacity} personas`
+    };
+  }
+
+  try {
+    const availability = await getAvailabilityForUnit(unit, startDate, endDate);
+
+    const allDatesAvailable = availability.every(d => {
+      return !UNITS[unit].isIndividual ? d.available : d.remainingCapacity >= persons;
+    });
+
+    if (!allDatesAvailable) {
+      const unavailableDates = availability
+        .filter(d => !UNITS[unit].isIndividual ? !d.available : d.remainingCapacity < persons)
+        .map(d => d.date);
+      
+      return {
+        available: false,
+        message: `Las siguientes fechas no están disponibles para ${persons} persona${persons > 1 ? 's' : ''}: ${unavailableDates.join(", ")}`
+      };
+    }
+
+    return { available: true };
+  } catch (error) {
+    console.error("Error checking availability:", error);
+    return {
+      available: false,
+      message: "Error al verificar disponibilidad. Intente nuevamente."
+    };
+  }
 }
 
 // Devuelve las fechas no disponibles como strings 'YYYY-MM-DD'
@@ -116,9 +199,14 @@ export async function getUnavailableDates(
   startDate: string,
   endDate: string
 ): Promise<string[]> {
-  const availability = await getAvailabilityForUnit(unit, startDate, endDate);
+  try {
+    const availability = await getAvailabilityForUnit(unit, startDate, endDate);
 
-  return availability
-    .filter(d => !UNITS[unit].isIndividual ? !d.available : d.remainingCapacity < persons)
-    .map(d => d.date);
+    return availability
+      .filter(d => !UNITS[unit].isIndividual ? !d.available : d.remainingCapacity < persons)
+      .map(d => d.date);
+  } catch (error) {
+    console.error("Error getting unavailable dates:", error);
+    return [];
+  }
 }
