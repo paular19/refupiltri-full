@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Pencil, Trash2 } from "lucide-react";
 
 import {
   Table,
@@ -9,15 +10,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import LoadMore from "./LoadMore";
 import { Reservation } from "@/lib/types";
 import { UNITS } from "@/lib/constants";
+import DeleteReservationButton from "./DeleteReservation";
 
 interface ReservationsProps {
   reservations: Reservation[];
+  deleteAction: (formData: FormData) => Promise<void>;
 }
 
-export default function Reservations({ reservations }: ReservationsProps) {
+export default function Reservations({ reservations, deleteAction }: ReservationsProps) {
   return (
     <div className="space-y-6">
       {reservations.length === 0 ? (
@@ -86,12 +90,20 @@ export default function Reservations({ reservations }: ReservationsProps) {
                     <Badge variant="outline">{reservation.origin}</Badge>
                   </TableCell>
                   <TableCell className="flex gap-2">
-                    <Link
-                      href={`/admin/reservations/${reservation.id}/edit`}
-                      className="text-blue-600 hover:underline"
-                    >
-                      Editar
+                    <Link href={`/admin/reservations/${reservation.id}/edit`}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 hover:bg-blue-100 hover:text-blue-600"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
                     </Link>
+                    <DeleteReservationButton
+                      reservationId={reservation.id}
+                      contactName={reservation.contactName}
+                      deleteAction={deleteAction}
+                    />
                   </TableCell>
                 </TableRow>
               ))}

@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { getReservations } from "@/lib/firebase/reservation-server";
-import { checkAdminAuth } from "@/lib/auth/server"; // ← Importar función real
+import { checkAdminAuth } from "@/lib/auth/server";
+import { deleteReservationAction } from "@/app/actions/reservations";
 import Reservations from "@/components/Admin/Reservations";
 import Filters from "@/components/Admin/Filters";
 import PathStatusSection from "@/components/Admin/PathStatusSection";
 import { LogOut } from "@/components/Admin/LogOut";
-import Link from "next/link";
 
 interface AdminPageProps {
   searchParams?: any;
@@ -13,12 +14,29 @@ interface AdminPageProps {
 
 export const dynamic = "force-dynamic";
 
+async function handleDeleteReservation(formData: FormData) {
+  "use server";
+
+  const id = formData.get("id") as string;
+
+  const isAuthorized = await checkAdminAuth();
+  if (!isAuthorized) {
+    throw new Error("No autorizado");
+  }
+
+  try {
+    await deleteReservationAction(id);
+    revalidatePath("/admin");
+  } catch (error) {
+    console.error("Error deleting reservation:", error);
+    throw error;
+  }
+}
+
 export default async function AdminPage({ searchParams }: AdminPageProps) {
-  // ← Ahora usa la función real que verifica la cookie
   const isAuthorized = await checkAdminAuth();
 
   if (!isAuthorized) {
-    // Redirige al login si no está autorizado
     redirect("/admin/login");
   }
 
@@ -42,7 +60,10 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
             <LogOut />
           </div>
           <Filters searchParams={searchParams} />
-          <Reservations reservations={reservations} />
+          <Reservations
+            reservations={reservations}
+            deleteAction={handleDeleteReservation}
+          />
           <PathStatusSection />
         </div>
       </div>
