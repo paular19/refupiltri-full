@@ -35,23 +35,60 @@ export const UNITS: Record<string, ReservationUnit> = {
     name: "Habitación Este",
     capacity: 4,
     isIndividual: false,
+    allowGuestSelection: true, // Nueva propiedad para permitir selección de huéspedes
+    minGuests: 2, // Mínimo de huéspedes
+    maxGuests: 4, // Máximo de huéspedes
   },
   habitacion2: {
     type: "habitacion2",
     name: "Habitación Oeste",
-    capacity: 4,
+    capacity: 3,
     isIndividual: false,
+    allowGuestSelection: true, // Nueva propiedad para permitir selección de huéspedes
+    minGuests: 2, // Mínimo de huéspedes
+    maxGuests: 3, // Máximo de huéspedes
   },
 };
 
-export const PRICES = {
-  refugio: 1, // per person per night
-  camping: 3000, // per person per night
-  cabana: 40000, // total per night
-  habitacion1: 20000, // total per night
-  habitacion2: 20000, // total per night
-  breakfast: 1, // per person per day
-  lunch: 3000, // per person per day
+type PriceValue = number | Record<number, number>;
+
+export const PRICES: Record<string, PriceValue> = {
+  refugio: 1,
+  camping: 13000,
+  cabana: 200000,
+  habitacion1: { 2: 100000, 3: 140000, 4: 150000 },
+  habitacion2: { 2: 100000, 3: 140000 },
+  breakfast: 1,
+  lunch: 3000,
+  residentDiscount: 3000,
+};
+
+// Función helper para obtener el precio de una habitación según el número de personas
+export const getRoomPrice = (unitType: UnitKey, persons: number): number => {
+  const price = PRICES[unitType];
+
+  if (typeof price === 'number') return price;
+  if (typeof price === 'object' && price !== null) return price[persons] || 0;
+
+  return 0;
+};
+
+
+// Función helper para obtener el descuento de residente
+export const getResidentDiscount = (
+  unitType: string,
+  persons: number,
+  nights: number,
+  isResident: boolean
+): number => {
+  if (!isResident) return 0;
+
+  // Solo aplicar descuento para refugio y camping
+  if (unitType === 'refugio' || unitType === 'camping') {
+    return (PRICES.residentDiscount as number) * persons * nights;
+  }
+
+  return 0;
 };
 
 export type UnitKey = keyof typeof PRICES;

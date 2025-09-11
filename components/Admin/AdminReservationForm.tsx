@@ -5,7 +5,7 @@ import { DayPicker } from 'react-day-picker';
 import { es } from 'date-fns/locale';
 import { parseISO, addMonths, startOfDay, format } from 'date-fns';
 import { UnitType, FormReservation, Reservation } from '@/lib/types';
-import { UNITS, RESERVATION_STATUS } from '@/lib/constants';
+import { UNITS, RESERVATION_STATUS, getRoomPrice } from '@/lib/constants';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -31,24 +31,17 @@ type Timestamp = {
   toDate(): Date;
 };
 
-// PASO 1: Interface modificada para ser más flexible
 interface AdminReservationFormProps {
   reservation?: Reservation & { 
-    createdAt?: string | Timestamp;  // Acepta tanto string como Timestamp
-    updatedAt?: string | Timestamp;  // Acepta tanto string como Timestamp
+    createdAt?: string | Timestamp;
+    updatedAt?: string | Timestamp;
   };
   mode?: 'create' | 'edit';
 }
 
-// PASO 2: Función helper para normalizar timestamps
 function normalizeTimestamp(timestamp: string | Timestamp | undefined): string {
-  // Si no hay timestamp, retorna string vacío
   if (!timestamp) return '';
-  
-  // Si ya es string, lo retorna tal como está
   if (typeof timestamp === 'string') return timestamp;
-  
-  // Si es un Timestamp de Firebase, lo convierte a ISO string
   return timestamp.toDate().toISOString();
 }
 
@@ -56,43 +49,29 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
   const router = useRouter();
   const isEditMode = mode === 'edit' && reservation;
   
-  // PASO 3: Estado del formulario con inicialización mejorada
   const [formData, setFormData] = useState<FormReservation>(() => {
     if (isEditMode) {
       return {
-        // Usar la función helper solo para normalizar timestamps de Firebase
         createdAt: normalizeTimestamp(reservation.createdAt),
         updatedAt: normalizeTimestamp(reservation.updatedAt),
-        
-        // Las fechas ya son strings, solo formatear para inputs de fecha
         startDate: reservation.startDate ? format(new Date(reservation.startDate), 'yyyy-MM-dd') : '',
         endDate: reservation.endDate ? format(new Date(reservation.endDate), 'yyyy-MM-dd') : '',
-        
-        // Campos de contacto con valores por defecto
         contactName: reservation.contactName || '',
         contactLastName: reservation.contactLastName || '',
         contactEmail: reservation.contactEmail || '',
         contactPhone: reservation.contactPhone || '',
-        
-        // Configuración de la reserva
         unit: reservation.unit || 'refugio',
         persons: reservation.persons || 1,
         reason: reservation.reason || '',
-        
-        // Servicios adicionales
         includeBreakfast: reservation.includeBreakfast || false,
         includeLunch: reservation.includeLunch || false,
-        
-        // Configuración de notificación (siempre false en edición)
+        isResident: reservation.isResident || false, 
         notifyUser: false,
-        
-        // Estado y origen
         status: reservation.status || 'confirmed',
         origin: reservation.origin || 'admin',
       };
     }
     
-    // Valores por defecto para modo creación
     return {
       createdAt: '',
       updatedAt: '',
@@ -107,13 +86,13 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
       reason: '',
       includeBreakfast: false,
       includeLunch: false,
-      notifyUser: true, // True por defecto en creación
+      isResident: false,
+      notifyUser: true,
       status: 'confirmed',
       origin: 'admin',
     };
   });
 
-  // Estados para manejo del calendario y disponibilidad
   const [unavailableDatesSet, setUnavailableDatesSet] = useState<Set<string>>(new Set());
   const [loadingAvailability, setLoadingAvailability] = useState(false);
   const [availabilityError, setAvailabilityError] = useState('');
@@ -124,7 +103,6 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
 
   const selectedUnit = formData.unit ? UNITS[formData.unit as UnitType] : UNITS.refugio;
 
-  // PASO 4: Effect para cargar fechas no disponibles
   useEffect(() => {
     if (!formData.unit) {
       setUnavailableDatesSet(new Set());
@@ -140,7 +118,6 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
         const future = addMonths(today, 12);
         let apiUrl = `/api/availability?unit=${formData.unit}&persons=${formData.persons || 1}&startDate=${format(today,'yyyy-MM-dd')}&endDate=${format(future,'yyyy-MM-dd')}`;
         
-        // Si estamos editando, excluir la reserva actual de la validación
         if (isEditMode && reservation?.id) {
           apiUrl += `&excludeReservationId=${reservation.id}`;
         }
@@ -162,23 +139,50 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
     loadUnavailableDates();
   }, [formData.unit, formData.persons, isEditMode, reservation?.id]);
 
-  // PASO 5: Effect para ajustar personas cuando cambie el tipo de unidad
+  // Función para obtener opciones de personas (coherente con Step1)
+  const getPersonsOptions = () => {
+    if (selectedUnit.isIndividual) {
+      return Array.from({ length: selectedUnit.capacity }, (_, i) => i + 1);
+    }
+    
+    // Para habitaciones que permiten selección de huéspedes
+    if (selectedUnit.allowGuestSelection && selectedUnit.minGuests && selectedUnit.maxGuests) {
+      const options = [];
+      for (let i = selectedUnit.minGuests; i <= selectedUnit.maxGuests; i++) {
+        options.push(i);
+      }
+      return options;
+    }
+    
+    // Para otras habitaciones grupales, mantener capacidad fija
+    return [selectedUnit.capacity];
+  };
+
+  // Effect para ajustar personas cuando cambie el tipo de unidad
   const prevUnitRef = React.useRef<string | null>(null);
   React.useEffect(() => {
     if (prevUnitRef.current !== selectedUnit.type && !isEditMode) {
+      let defaultPersons: number;
+      
+      if (selectedUnit.isIndividual) {
+        defaultPersons = 1;
+      } else if (selectedUnit.allowGuestSelection && selectedUnit.minGuests) {
+        defaultPersons = selectedUnit.minGuests;
+      } else {
+        defaultPersons = selectedUnit.capacity;
+      }
+      
       setFormData(prev => ({
         ...prev,
-        persons: selectedUnit.isIndividual ? 1 : selectedUnit.capacity,
+        persons: defaultPersons,
       }));
     }
     prevUnitRef.current = selectedUnit.type;
-  }, [selectedUnit.type, selectedUnit.capacity, selectedUnit.isIndividual, isEditMode]);
+  }, [selectedUnit.type, selectedUnit.capacity, selectedUnit.isIndividual, selectedUnit.allowGuestSelection, selectedUnit.minGuests, isEditMode]);
 
-  // PASO 6: Función para validar disponibilidad
   const validateAvailability = async (unit: UnitType, persons: number, startDate: string, endDate: string) => {
     let apiUrl = `/api/availability?action=validate&unit=${unit}&persons=${persons}&startDate=${startDate}&endDate=${endDate}`;
     
-    // Si estamos editando, excluir la reserva actual de la validación
     if (isEditMode && reservation?.id) {
       apiUrl += `&excludeReservationId=${reservation.id}`;
     }
@@ -188,29 +192,22 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
     return await response.json();
   };
 
-  // PASO 7: Función para obtener opciones de personas según el tipo de unidad
-  const getPersonsOptions = () => {
-    if (selectedUnit.isIndividual) {
-      return Array.from({ length: selectedUnit.capacity }, (_, i) => i + 1);
-    }
-    return [selectedUnit.capacity];
-  };
-
-  // PASO 8: Función para verificar si una fecha está no disponible
   const isDateUnavailable = (date: Date) => {
     const dateStr = format(startOfDay(date), 'yyyy-MM-dd');
     const todayStr = format(startOfDay(new Date()), 'yyyy-MM-dd');
     return dateStr < todayStr || unavailableDatesSet.has(dateStr);
   };
 
-  // PASO 9: Función para manejar cambios en inputs
   const handleInputChange = (name: string, value: any) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // PASO 10: Función principal para enviar el formulario
+  // Función para verificar si el descuento de residente aplica
+  const isResidentDiscountApplicable = () => {
+    return formData.unit === 'refugio' || formData.unit === 'camping';
+  };
+
   const handleSubmit = async () => {
-    // Validación de campos obligatorios
     if (!formData.unit || !formData.startDate || !formData.endDate || !formData.contactName || !formData.contactLastName) {
       setSubmitError('Por favor complete todos los campos obligatorios');
       return;
@@ -221,7 +218,6 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
     setAvailabilityError('');
 
     try {
-      // Validar disponibilidad antes de crear/actualizar
       const availabilityCheck = await validateAvailability(
         formData.unit as UnitType,
         formData.persons || 1,
@@ -234,7 +230,6 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
         return;
       }
 
-      // Preparar FormData para la función de utilidad existente
       const formDataToSubmit = new FormData();
       formDataToSubmit.append('unit', formData.unit);
       formDataToSubmit.append('persons', formData.persons?.toString() || '1');
@@ -249,12 +244,12 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
       formDataToSubmit.append('status', formData.status || 'confirmed');
       formDataToSubmit.append('includeBreakfast', formData.includeBreakfast ? 'true' : 'false');
       formDataToSubmit.append('includeLunch', formData.includeLunch ? 'true' : 'false');
+      formDataToSubmit.append('isResident', formData.isResident ? 'true' : 'false'); // ✅ AGREGADO
 
       const reservationData = formToReservationData(formDataToSubmit);
       const shouldNotify = Boolean(formData.notifyUser && formData.contactEmail);
 
       if (isEditMode) {
-        // Actualizar reserva existente
         await updateReservationWithEmail(
           reservation.id!,
           reservationData,
@@ -262,7 +257,6 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
         );
         console.log("Admin reservation updated:", reservation.id, "Email sent:", shouldNotify);
       } else {
-        // Crear nueva reserva
         const result = await createReservationWithEmail(
           reservationData,
           shouldNotify
@@ -270,7 +264,6 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
         console.log("Admin reservation created:", result.id, "Email sent:", shouldNotify);
       }
       
-      // Redirigir al admin dashboard
       router.push('/admin');
 
     } catch (error) {
@@ -281,7 +274,6 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
     }
   };
 
-  // PASO 11: Render del componente (igual que tu código original)
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <Card>
@@ -311,9 +303,9 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
 
             <div className="space-y-2">
               <Label>Personas *</Label>
-              {selectedUnit.isIndividual ? (
+              {selectedUnit.isIndividual || selectedUnit.allowGuestSelection ? (
                 <Select 
-                  value={formData.persons?.toString() || '1'} 
+                  value={formData.persons?.toString() || (selectedUnit.minGuests || 1).toString()} 
                   onValueChange={(value) => handleInputChange('persons', parseInt(value))}
                 >
                   <SelectTrigger>
@@ -322,7 +314,7 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
                   <SelectContent>
                     {getPersonsOptions().map((num) => (
                       <SelectItem key={num} value={num.toString()}>
-                        {num}
+                        {num} {num === 1 ? 'persona' : 'personas'}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -521,6 +513,21 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
                 onCheckedChange={(checked) => handleInputChange('includeLunch', checked)}
               />
               <Label htmlFor="includeLunch">Incluir Almuerzo</Label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="isResident"
+                checked={formData.isResident || false}
+                disabled={!isResidentDiscountApplicable()}
+                onCheckedChange={(checked) => handleInputChange('isResident', checked)}
+              />
+              <Label 
+                htmlFor="isResident"
+                className={!isResidentDiscountApplicable() ? 'opacity-50' : ''}
+              >
+                Es Residente
+              </Label>
             </div>
 
             <div className="flex items-center space-x-2">
