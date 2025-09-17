@@ -49,8 +49,8 @@ export function generateCustomerEmailTemplate(
               <li><strong>Personas:</strong> ${bookingData.persons}</li>
               <li><strong>Fecha de Entrada:</strong> ${startDateFormatted}</li>
               <li><strong>Fecha de Salida:</strong> ${endDateFormatted}</li>
-              <li><strong>Desayuno:</strong> ${bookingData.includeBreakfast ? 'Incluido' : 'No incluido'}</li>
-              <li><strong>Almuerzo:</strong> ${bookingData.includeLunch ? 'Incluido' : 'No incluido'}</li>
+              <li><strong>Desayuno de campo:</strong> ${bookingData.includeBreakfastCampo ? 'Incluido' : 'No incluido'}</li>
+              <li><strong>Desayuno americano:</strong> ${bookingData.includeBreakfastAmericano ? 'Incluido' : 'No incluido'}</li>
             </ul>
           </div>
 

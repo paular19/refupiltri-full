@@ -32,7 +32,7 @@ type Timestamp = {
 };
 
 interface AdminReservationFormProps {
-  reservation?: Reservation & { 
+  reservation?: Reservation & {
     createdAt?: string | Timestamp;
     updatedAt?: string | Timestamp;
   };
@@ -48,7 +48,7 @@ function normalizeTimestamp(timestamp: string | Timestamp | undefined): string {
 export default function AdminReservationForm({ reservation, mode = 'create' }: AdminReservationFormProps) {
   const router = useRouter();
   const isEditMode = mode === 'edit' && reservation;
-  
+
   const [formData, setFormData] = useState<FormReservation>(() => {
     if (isEditMode) {
       return {
@@ -63,15 +63,15 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
         unit: reservation.unit || 'refugio',
         persons: reservation.persons || 1,
         reason: reservation.reason || '',
-        includeBreakfast: reservation.includeBreakfast || false,
-        includeLunch: reservation.includeLunch || false,
-        isResident: reservation.isResident || false, 
+        includeBreakfastCampo: reservation.includeBreakfastCampo || false,
+        includeBreakfastAmericano: reservation.includeBreakfastAmericano || false,
+        isResident: reservation.isResident || false,
         notifyUser: false,
         status: reservation.status || 'confirmed',
         origin: reservation.origin || 'admin',
       };
     }
-    
+
     return {
       createdAt: '',
       updatedAt: '',
@@ -84,8 +84,8 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
       unit: 'refugio',
       persons: 1,
       reason: '',
-      includeBreakfast: false,
-      includeLunch: false,
+      includeBreakfastCampo: false,
+      includeBreakfastAmericano: false,
       isResident: false,
       notifyUser: true,
       status: 'confirmed',
@@ -116,8 +116,8 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
       try {
         const today = startOfDay(new Date());
         const future = addMonths(today, 12);
-        let apiUrl = `/api/availability?unit=${formData.unit}&persons=${formData.persons || 1}&startDate=${format(today,'yyyy-MM-dd')}&endDate=${format(future,'yyyy-MM-dd')}`;
-        
+        let apiUrl = `/api/availability?unit=${formData.unit}&persons=${formData.persons || 1}&startDate=${format(today, 'yyyy-MM-dd')}&endDate=${format(future, 'yyyy-MM-dd')}`;
+
         if (isEditMode && reservation?.id) {
           apiUrl += `&excludeReservationId=${reservation.id}`;
         }
@@ -144,7 +144,7 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
     if (selectedUnit.isIndividual) {
       return Array.from({ length: selectedUnit.capacity }, (_, i) => i + 1);
     }
-    
+
     // Para habitaciones que permiten selección de huéspedes
     if (selectedUnit.allowGuestSelection && selectedUnit.minGuests && selectedUnit.maxGuests) {
       const options = [];
@@ -153,7 +153,7 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
       }
       return options;
     }
-    
+
     // Para otras habitaciones grupales, mantener capacidad fija
     return [selectedUnit.capacity];
   };
@@ -163,7 +163,7 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
   React.useEffect(() => {
     if (prevUnitRef.current !== selectedUnit.type && !isEditMode) {
       let defaultPersons: number;
-      
+
       if (selectedUnit.isIndividual) {
         defaultPersons = 1;
       } else if (selectedUnit.allowGuestSelection && selectedUnit.minGuests) {
@@ -171,7 +171,7 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
       } else {
         defaultPersons = selectedUnit.capacity;
       }
-      
+
       setFormData(prev => ({
         ...prev,
         persons: defaultPersons,
@@ -182,11 +182,11 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
 
   const validateAvailability = async (unit: UnitType, persons: number, startDate: string, endDate: string) => {
     let apiUrl = `/api/availability?action=validate&unit=${unit}&persons=${persons}&startDate=${startDate}&endDate=${endDate}`;
-    
+
     if (isEditMode && reservation?.id) {
       apiUrl += `&excludeReservationId=${reservation.id}`;
     }
-    
+
     const response = await fetch(apiUrl);
     if (!response.ok) throw new Error('Error validating availability');
     return await response.json();
@@ -242,8 +242,8 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
       formDataToSubmit.append('reason', formData.reason || '');
       formDataToSubmit.append('origin', formData.origin || 'admin');
       formDataToSubmit.append('status', formData.status || 'confirmed');
-      formDataToSubmit.append('includeBreakfast', formData.includeBreakfast ? 'true' : 'false');
-      formDataToSubmit.append('includeLunch', formData.includeLunch ? 'true' : 'false');
+      formDataToSubmit.append('includeBreakfastCampo', formData.includeBreakfastCampo ? 'true' : 'false');
+      formDataToSubmit.append('includeBreakfastAmericano', formData.includeBreakfastAmericano ? 'true' : 'false');
       formDataToSubmit.append('isResident', formData.isResident ? 'true' : 'false'); // ✅ AGREGADO
 
       const reservationData = formToReservationData(formDataToSubmit);
@@ -263,7 +263,7 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
         );
         console.log("Admin reservation created:", result.id, "Email sent:", shouldNotify);
       }
-      
+
       router.push('/admin');
 
     } catch (error) {
@@ -284,8 +284,8 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Unidad *</Label>
-              <Select 
-                value={formData.unit || 'refugio'} 
+              <Select
+                value={formData.unit || 'refugio'}
                 onValueChange={(value) => handleInputChange('unit', value)}
               >
                 <SelectTrigger>
@@ -304,8 +304,8 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
             <div className="space-y-2">
               <Label>Personas *</Label>
               {selectedUnit.isIndividual || selectedUnit.allowGuestSelection ? (
-                <Select 
-                  value={formData.persons?.toString() || (selectedUnit.minGuests || 1).toString()} 
+                <Select
+                  value={formData.persons?.toString() || (selectedUnit.minGuests || 1).toString()}
                   onValueChange={(value) => handleInputChange('persons', parseInt(value))}
                 >
                   <SelectTrigger>
@@ -314,7 +314,7 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
                   <SelectContent>
                     {getPersonsOptions().map((num) => (
                       <SelectItem key={num} value={num.toString()}>
-                        {num} {num === 1 ? 'persona' : 'personas'}
+                        {num}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -400,8 +400,8 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
                 />
               )}
               <div className="flex justify-end mt-4">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setShowCalendar(false)}
                 >
                   Cerrar
@@ -424,8 +424,8 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
               <>
                 <div className="space-y-2">
                   <Label>Estado</Label>
-                  <Select 
-                    value={formData.status || 'confirmed'} 
+                  <Select
+                    value={formData.status || 'confirmed'}
                     onValueChange={(value) => handleInputChange('status', value)}
                   >
                     <SelectTrigger>
@@ -443,7 +443,7 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
 
                 <div className="space-y-2">
                   <Label>Origen</Label>
-                  <Input 
+                  <Input
                     value={formData.origin || 'admin'}
                     onChange={(e) => handleInputChange('origin', e.target.value)}
                   />
@@ -462,26 +462,26 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Nombre *</Label>
-              <Input 
+              <Input
                 value={formData.contactName || ''}
                 onChange={(e) => handleInputChange('contactName', e.target.value)}
-                required 
+                required
               />
             </div>
 
             <div className="space-y-2">
               <Label>Apellido *</Label>
-              <Input 
+              <Input
                 value={formData.contactLastName || ''}
                 onChange={(e) => handleInputChange('contactLastName', e.target.value)}
-                required 
+                required
               />
             </div>
 
             <div className="space-y-2">
               <Label>Email</Label>
-              <Input 
-                type="email" 
+              <Input
+                type="email"
                 value={formData.contactEmail || ''}
                 onChange={(e) => handleInputChange('contactEmail', e.target.value)}
               />
@@ -489,7 +489,7 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
 
             <div className="space-y-2">
               <Label>Teléfono</Label>
-              <Input 
+              <Input
                 value={formData.contactPhone || ''}
                 onChange={(e) => handleInputChange('contactPhone', e.target.value)}
               />
@@ -498,21 +498,21 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
 
           <div className="space-y-4 border-t pt-4">
             <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="includeBreakfast" 
-                checked={formData.includeBreakfast || false}
-                onCheckedChange={(checked) => handleInputChange('includeBreakfast', checked)}
+              <Checkbox
+                id="includeBreakfastCampo"
+                checked={formData.includeBreakfastCampo || false}
+                onCheckedChange={(checked) => handleInputChange('includeBreakfastCampo', checked)}
               />
-              <Label htmlFor="includeBreakfast">Incluir Desayuno</Label>
+              <Label htmlFor="includeBreakfastCampo">Incluir desayuno de campo</Label>
             </div>
 
             <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="includeLunch" 
-                checked={formData.includeLunch || false}
-                onCheckedChange={(checked) => handleInputChange('includeLunch', checked)}
+              <Checkbox
+                id="includeBreakfastAmericano"
+                checked={formData.includeBreakfastAmericano || false}
+                onCheckedChange={(checked) => handleInputChange('includeBreakfastAmericano', checked)}
               />
-              <Label htmlFor="includeLunch">Incluir Almuerzo</Label>
+              <Label htmlFor="includeBreakfastAmericano">Incluir desayuno americano</Label>
             </div>
 
             <div className="flex items-center space-x-2">
@@ -522,7 +522,7 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
                 disabled={!isResidentDiscountApplicable()}
                 onCheckedChange={(checked) => handleInputChange('isResident', checked)}
               />
-              <Label 
+              <Label
                 htmlFor="isResident"
                 className={!isResidentDiscountApplicable() ? 'opacity-50' : ''}
               >
@@ -537,7 +537,7 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
                 onCheckedChange={(checked) => handleInputChange('notifyUser', checked)}
               />
               <Label htmlFor="notifyUser">
-                {isEditMode 
+                {isEditMode
                   ? "Notificar al usuario por email sobre los cambios"
                   : "Notificar al usuario por email"
                 }
@@ -561,13 +561,13 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
             Cancelar
           </Button>
         </Link>
-        
-        <Button 
+
+        <Button
           onClick={handleSubmit}
           disabled={isSubmitting || !formData.startDate || !formData.endDate || !formData.unit || !formData.contactName || !formData.contactLastName}
           className="min-w-32"
         >
-          {isSubmitting 
+          {isSubmitting
             ? (isEditMode ? 'Actualizando...' : 'Creando...')
             : (isEditMode ? 'Actualizar Reserva' : 'Crear Reserva')
           }

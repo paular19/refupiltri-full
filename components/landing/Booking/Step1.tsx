@@ -293,36 +293,36 @@ export const Step1 = ({
         <div className="flex items-center space-x-2">
           <input
             type="checkbox"
-            id="includeBreakfast"
-            name="includeBreakfast"
-            checked={formData.includeBreakfast ?? false}
+            id="includeBreakfastCampo"
+            name="includeBreakfastCampo"
+            checked={formData.includeBreakfastCampo ?? false}
             onChange={(e) =>
               setFormData((prev: any) => ({
                 ...prev,
-                includeBreakfast: e.target.checked,
+                includeBreakfastCampo: e.target.checked,
               }))
             }
           />
-          <label htmlFor="includeBreakfast" className="text-sm font-poppins font-extralight" style={{ color: "#F7F8FA" }}>
-            Incluir Desayuno
+          <label htmlFor="includeBreakfastCampo" className="text-sm font-poppins font-extralight" style={{ color: "#F7F8FA" }}>
+            Incluir desayuno de campo 
           </label>
         </div>
 
         <div className="flex items-center space-x-2">
           <input
             type="checkbox"
-            id="includeLunch"
-            name="includeLunch"
-            checked={formData.includeLunch ?? false}
+            id="includeBreakfastAmericano"
+            name="includeBreakfastAmericano"
+            checked={formData.includeBreakfastAmericano ?? false}
             onChange={(e) =>
               setFormData((prev: any) => ({
                 ...prev,
-                includeLunch: e.target.checked,
+                includeBreakfastAmericano: e.target.checked,
               }))
             }
           />
-          <label htmlFor="includeLunch" className="text-sm font-poppins font-extralight" style={{ color: "#F7F8FA" }}>
-            Incluir Almuerzo
+          <label htmlFor="includeBreakfastAmericano" className="text-sm font-poppins font-extralight" style={{ color: "#F7F8FA" }}>
+            Incluir desayuno americano
           </label>
         </div>
 

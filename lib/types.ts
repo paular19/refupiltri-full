@@ -27,8 +27,8 @@ export interface Reservation {
   contactLastName: string;
   contactEmail: string;
   contactPhone: string;
-  includeBreakfast: boolean;
-  includeLunch: boolean;
+  includeBreakfastCampo: boolean;
+  includeBreakfastAmericano: boolean;
   origin: "web" | "admin";
   status: "pending" | "confirmed" | "cancelled";
   paymentId?: string;
@@ -56,12 +56,12 @@ export interface FormReservation {
   unit: string | null;
   persons: number | null;
   reason: string | null;
-  includeBreakfast: boolean | null;
-  includeLunch: boolean | null;
+  includeBreakfastCampo?: boolean;
+  includeBreakfastAmericano?: boolean;
   notifyUser: boolean | null;
   origin?: "web" | "admin" | null;
   status?: "pending" | "confirmed" | "cancelled" | null;
-  isResident: boolean | null;
+  isResident?: boolean;
 }
 
 export interface BookingData {
@@ -73,8 +73,8 @@ export interface BookingData {
   contactLastName: string;
   contactEmail: string;
   contactPhone: string;
-  includeBreakfast: boolean;
-  includeLunch: boolean;
+  includeBreakfastCampo: boolean;
+  includeBreakfastAmericano: boolean;
 }
 
 export type ReservationData = any;

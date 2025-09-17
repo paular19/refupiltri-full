@@ -22,6 +22,7 @@ interface ReservationsProps {
 }
 
 export default function Reservations({ reservations, deleteAction }: ReservationsProps) {
+  const hasResidentInfo = reservations.some(reservation => reservation.isResident !== undefined);
   return (
     <div className="space-y-6">
       {reservations.length === 0 ? (
@@ -37,8 +38,9 @@ export default function Reservations({ reservations, deleteAction }: Reservation
                 <TableHead>Unidad</TableHead>
                 <TableHead>Personas</TableHead>
                 <TableHead>Fechas</TableHead>
-                <TableHead>Desayuno</TableHead>
-                <TableHead>Almuerzo</TableHead>
+                <TableHead>Desayuno de Campo</TableHead>
+                <TableHead>Desayuno Americano</TableHead>
+                <TableHead>Residente</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead>Origen</TableHead>
                 <TableHead>Acciones</TableHead>
@@ -62,7 +64,7 @@ export default function Reservations({ reservations, deleteAction }: Reservation
                   </TableCell>
                   <TableCell>
                     <p className="text-sm text-muted-foreground">
-                      {reservation.persons} personas
+                      {reservation.persons}
                     </p>
                   </TableCell>
                   <TableCell>
@@ -72,17 +74,28 @@ export default function Reservations({ reservations, deleteAction }: Reservation
                     </p>
                   </TableCell>
                   <TableCell>
-                    {reservation.includeBreakfast ? (
+                    {reservation.includeBreakfastCampo ? (
                       <Badge variant="default">Sí</Badge>
                     ) : (
                       <Badge variant="secondary">No</Badge>
                     )}
                   </TableCell>
                   <TableCell>
-                    {reservation.includeLunch ? (
+                    {reservation.includeBreakfastAmericano ? (
                       <Badge variant="default">Sí</Badge>
                     ) : (
                       <Badge variant="secondary">No</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {reservation.isResident !== undefined ? (
+                      reservation.isResident ? (
+                        <Badge variant="default">Sí</Badge>
+                      ) : (
+                        <Badge variant="secondary">No</Badge>
+                      )
+                    ) : (
+                      <span className="text-sm text-muted-foreground">-</span>
                     )}
                   </TableCell>
                   <TableCell>{reservation.status}</TableCell>
