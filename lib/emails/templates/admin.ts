@@ -51,8 +51,8 @@ export function generateAdminEmailTemplate(
               <li><strong>Check-in:</strong> ${startDateFormatted}</li>
               <li><strong>Check-out:</strong> ${endDateFormatted}</li>
               <li><strong>Servicios extras:</strong> ${[
-                bookingData.includeBreakfast && 'Desayuno',
-                bookingData.includeLunch && 'Almuerzo'
+                bookingData.includeBreakfastCampo && 'Desayuno de campo',
+                bookingData.includeBreakfastAmericano && 'Desayuno americano'
               ].filter(Boolean).join(', ') || 'Ninguno'}</li>
               <li><strong>Origen:</strong> ${isAdminCreated ? 'Creada por administrador' : 'Reserva web con pago confirmado'}</li>
             </ul>

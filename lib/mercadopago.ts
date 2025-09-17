@@ -23,15 +23,15 @@ export async function createPaymentPreference(bookingData: BookingData): Promise
   }
 
   // Calculate  TODO VER SI LO PONEMOS
-  const breakfastPrice = bookingData.includeBreakfast
-    ? (PRICES.breakfast as number) * bookingData.persons * (nights + 1)
+  const breakfastCPrice = bookingData.includeBreakfastCampo
+    ? (PRICES.breakfastC as number) * bookingData.persons * (nights + 1)
     : 0;
 
-  const lunchPrice = bookingData.includeLunch
-    ? (PRICES.lunch as number) * bookingData.persons * (nights + 1)
+  const breakfastAPrice = bookingData.includeBreakfastAmericano
+    ? (PRICES.breakfastA as number) * bookingData.persons * (nights + 1)
     : 0;
 
-  const totalPrice = basePrice + breakfastPrice + lunchPrice;
+  const totalPrice = basePrice + breakfastCPrice + breakfastAPrice;
 
   const preferenceData = {
     items: [

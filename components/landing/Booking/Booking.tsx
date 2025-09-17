@@ -26,8 +26,8 @@ const Booking = () => {
     unit: "refugio",
     persons: 1,
     reason: "",
-    includeBreakfast: false,
-    includeLunch: false,
+    includeBreakfastCampo: false,
+    includeBreakfastAmericano: false,
     notifyUser: true,
     isResident: false, 
   });
