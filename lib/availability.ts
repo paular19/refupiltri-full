@@ -141,10 +141,10 @@ export async function checkAvailability(
   }
 
   // Validar que la fecha de inicio sea anterior o igual a la fecha de fin
-  if (startDate > endDate) {
+  if (startDate >= endDate) {
     return {
       available: false,
-      message: "La fecha de inicio debe ser anterior o igual a la fecha de fin"
+      message: "La fecha de inicio de tu estadía debe ser anterior a la fecha de fin."
     };
   }
 

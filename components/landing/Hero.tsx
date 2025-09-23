@@ -25,13 +25,18 @@ const Hero = () => {
       {/* Content */}
       <div className="relative z-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto h-full flex items-end pb-16">
         <div className="w-full grid grid-cols-1 lg:grid-cols-[minmax(350px,55%)_minmax(300px,45%)] gap-16 items-end">
-          
+
           {/* Título */}
           <div className="self-start text-left max-w-[500px]">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-poppins font-extralight text-white leading-tight animate-fade-in tracking-tight">
-              <div>Somos tu <span className="italic">refugio</span>,</div>
-              <div>todo el año</div>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-poppins font-extralight text-white leading-tight animate-fade-in tracking-tight">
+              <span className="whitespace-nowrap">
+                Somos tu <span className="italic">refugio</span>,
+              </span>
+              <br />
+              <span className="whitespace-nowrap">todo el año</span>
             </h1>
+
+
           </div>
 
           {/* Texto + botón */}

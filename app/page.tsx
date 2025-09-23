@@ -8,6 +8,8 @@ import Gallery from "@/components/landing/Gallery";
 import FAQ from "@/components/landing/FAQ";
 import Contact from "@/components/landing/Contact";
 import Footer from "@/components/landing/Footer";
+import Travesia from "@/components/landing/Travesia";
+import Recomendaciones from "@/components/landing/Recomendaciones";
 
 export default function HomePage() {
   return (
@@ -15,8 +17,10 @@ export default function HomePage() {
       <Navigation />
       <Hero />
       <About />
+      <Travesia/>
       <Services />
       <Promos />
+      <Recomendaciones/>
       <Booking />
       <Gallery />
       <FAQ />

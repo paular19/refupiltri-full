@@ -197,7 +197,7 @@ export const Step1 = ({
             >
               {getPersonsOptions().map((num) => (
                 <option key={num} value={num.toString()}>
-                  {num} {num === 1 ? 'persona' : 'personas'}
+                  {num}
                   {selectedUnit.allowGuestSelection && (
                     ` - $${getRoomPrice(selectedUnit.type, num).toLocaleString('es-AR')}`
                   )}
