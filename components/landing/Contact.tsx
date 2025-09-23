@@ -10,9 +10,9 @@ const Contact = () => {
         <div className="w-1/2 bg-[#F7F8FA]" />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-6 lg:px-20 z-10 flex flex-col lg:flex-row gap-12">
+      <div className="relative max-w-7xl mx-auto px-2 lg:px-4 z-10 flex flex-col lg:flex-row gap-6">
         {/* Lado izquierdo */}
-        <div className="w-full lg:w-1/2 pl-0 lg:pl-10 flex flex-col justify-center">
+        <div className="w-full lg:w-1/2 pl-0 lg:pl-4 flex flex-col justify-center">
           <p className="text-sm uppercase text-[#1A222B] font-poppins font-semibold mb-2 tracking-wide">
             CONTACTO
           </p>
@@ -49,10 +49,10 @@ const Contact = () => {
         </div>
 
         {/* Lado derecho (cards) */}
-        <div className="w-full lg:w-1/2">
+        <div className="w-full lg:w-1/2 pr-0 lg:pr-1">
           <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
             {/* Card Teléfono */}
-            <div className="w-full max-w-full min-w-0 bg-[#F7F8FA] border border-[#EBB9D7] rounded-2xl p-6 sm:p-8 md:p-10 flex flex-col gap-4">
+            <div className="w-full bg-[#F7F8FA] border border-[#EBB9D7] rounded-2xl p-6 sm:p-8 md:p-10 flex flex-col gap-4">
               <div className="flex items-center gap-4">
                 <div className="relative w-8 h-8 sm:w-10 sm:h-10">
                   <Image src="/icono-contacto1.png" alt="Teléfono" fill className="object-contain" />
@@ -68,20 +68,20 @@ const Contact = () => {
             </div>
 
             {/* Card Mail */}
-            <div className="w-full max-w-full min-w-0 bg-[#F7F8FA] border border-[#EBB9D7] rounded-2xl p-6 sm:p-8 md:p-10 flex flex-col gap-4">
+            <div className="w-full bg-[#F7F8FA] border border-[#EBB9D7] rounded-2xl p-6 sm:p-8 md:p-10 flex flex-col gap-4">
               <div className="flex items-center gap-4">
                 <div className="relative w-8 h-8 sm:w-10 sm:h-10">
                   <Image src="/icono-contacto2.png" alt="Email" fill className="object-contain" />
                 </div>
                 <p className="text-base sm:text-lg font-poppins font-semibold text-[#1A222B]">MAIL</p>
               </div>
-              <p className="text-sm font-montserrat text-[#1A222B] break-words">
+              <p className="text-sm font-montserrat text-[#1A222B] break-all">
                 piltriquitronpatagonia@gmail.com
               </p>
             </div>
 
             {/* Card Ubicación */}
-            <div className="w-full max-w-full min-w-0 bg-[#F7F8FA] border border-[#EBB9D7] rounded-2xl p-6 sm:p-8 md:p-10 flex gap-4 sm:gap-6 items-start col-span-full">
+            <div className="w-full bg-[#F7F8FA] border border-[#EBB9D7] rounded-2xl p-6 sm:p-8 md:p-10 flex gap-4 sm:gap-6 items-start col-span-full">
               <div className="relative w-8 h-8 sm:w-10 sm:h-10">
                 <Image src="/icono-contacto3.png" alt="Ubicación" fill className="object-contain" />
               </div>

@@ -49,8 +49,8 @@ const Promos = () => {
       <section id="promos" className="pt-36 pb-20 bg-off-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-24">
-            <h2 className="text-4xl font-poppins font-light text-dark-navy mb-12 text-xs-screen">
-              Promociones y Precios
+            <h2 className="text-4xl font-poppins font-light text-dark-navy mb-4 text-xs-screen">
+              Promociones & Precios
             </h2>
             <p className="text-sm font-montserrat text-dark-navy">
               Elige la opción que mejor se adapte a tu aventura
@@ -156,9 +156,8 @@ const Promos = () => {
                   style={{ backgroundColor: service.color }}
                 >
                   <h3
-                    className={`text-[1.75rem] font-poppins font-normal leading-tight whitespace-pre-line ${
-                      index === 0 ? "text-dark-navy" : "text-white"
-                    }`}
+                    className={`text-[1.75rem] font-poppins font-normal leading-tight whitespace-pre-line ${index === 0 ? "text-dark-navy" : "text-white"
+                      }`}
                   >
                     {service.name}
                   </h3>
@@ -174,9 +173,8 @@ const Promos = () => {
                   />
 
                   <p
-                    className={`text-sm font-montserrat font-light ${
-                      index === 0 ? "text-dark-navy" : "text-white"
-                    }`}
+                    className={`text-sm font-montserrat font-light ${index === 0 ? "text-dark-navy" : "text-white"
+                      }`}
                   >
                     {service.footer}
                   </p>
@@ -190,9 +188,8 @@ const Promos = () => {
                     style={{ backgroundColor: service.color }}
                   >
                     <h3
-                      className={`text-[1.75rem] font-poppins font-normal leading-tight whitespace-pre-line ${
-                        index === 0 ? "text-dark-navy" : "text-white"
-                      }`}
+                      className={`text-[1.75rem] font-poppins font-normal leading-tight whitespace-pre-line ${index === 0 ? "text-dark-navy" : "text-white"
+                        }`}
                     >
                       {service.name}
                     </h3>
