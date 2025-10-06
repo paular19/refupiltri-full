@@ -38,7 +38,7 @@ export const UNITS: Record<string, ReservationUnit> = {
 type PriceValue = number | Record<number, number>;
 
 export const PRICES: Record<string, PriceValue> = {
-  refugio: 1,          
+  refugio: 25000,          
   camping: 13000,
   cabana: 200000,
   habitacion1: { 2: 100000, 3: 140000, 4: 150000 },
