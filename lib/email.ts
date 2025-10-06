@@ -20,7 +20,7 @@ export async function sendBookingConfirmation(
     if (bookingData.contactEmail) {
       emailPromises.push(
         resend.emails.send({
-          from: 'Refugio Piltri <onboarding@resend.dev>',
+          from: 'Refugio Piltri <reservas@refugiopiltriquitron.com>',
           to: [bookingData.contactEmail],
           subject: `Confirmación de Reserva #${reservationId} - Refugio Piltri`,
           html: customerEmailHtml,
@@ -31,7 +31,7 @@ export async function sendBookingConfirmation(
     // Email al admin siempre
     emailPromises.push(
       resend.emails.send({
-        from: 'Sistema Reservas <onboarding@resend.dev>',
+        from: 'Sistema Reservas <reservas@refugiopiltriquitron.com>',
         to: [process.env.ADMIN_EMAIL!],
         subject: `${isAdminCreated ? 'Reserva Creada' : 'Nueva Reserva Web'} - ${bookingData.contactName} ${bookingData.contactLastName}`,
         html: adminEmailHtml,
