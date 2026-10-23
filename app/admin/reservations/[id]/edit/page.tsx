@@ -1,5 +1,6 @@
 // app/admin/reservations/[id]/edit/page.tsx
-import { getReservationById } from "@/app/actions/reservations";
+import { getReservationById } from "@/lib/reservations";
+import { checkAdminAuth } from "@/lib/auth/server";
 import { redirect } from "next/navigation";
 import AdminReservationForm from '@/components/Admin/AdminReservationForm';
 import { Reservation } from "@/lib/types";
@@ -20,8 +21,12 @@ function serializeReservation(reservation: any): Reservation {
 }
 
 export default async function EditReservationPage({ params }: EditReservationPageProps) {
+  if (!(await checkAdminAuth())) {
+    redirect("/admin/login");
+  }
+
   const { id } = await params;
-  
+
   // Obtener la reserva existente
   const rawReservation = await getReservationById(id);
   

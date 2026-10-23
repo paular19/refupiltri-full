@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { DayPicker } from 'react-day-picker';
 import { es } from 'date-fns/locale';
-import { parseISO, addMonths, startOfDay, format } from 'date-fns';
+import { parseISO, addMonths, startOfDay, format, subDays } from 'date-fns';
 import { UnitType, FormReservation } from '@/lib/types';
 import { UNITS, getRoomPrice } from '@/lib/constants';
 import 'react-day-picker/dist/style.css';
@@ -123,7 +123,11 @@ export const Step1 = ({
   const isDateUnavailable = (date: Date) => {
     const dateStr = format(startOfDay(date), 'yyyy-MM-dd');
     const todayStr = format(startOfDay(new Date()), 'yyyy-MM-dd');
-    return dateStr < todayStr || unavailableDatesSet.has(dateStr);
+    if (dateStr < todayStr) return true;
+    // Las fechas no disponibles son noches completas: para salir un día alcanza
+    // con que esté libre la noche anterior
+    const night = selectingStart ? date : subDays(date, 1);
+    return unavailableDatesSet.has(format(startOfDay(night), 'yyyy-MM-dd'));
   };
 
   const handleContinue = async () => {
@@ -288,8 +292,8 @@ export const Step1 = ({
         </div>
       )}
 
-      {/* Checkboxes de desayuno, almuerzo y residente */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Checkboxes de desayuno, cena y residente */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="flex items-center space-x-2">
           <input
             type="checkbox"
@@ -304,7 +308,10 @@ export const Step1 = ({
             }
           />
           <label htmlFor="includeBreakfastCampo" className="text-sm font-poppins font-extralight" style={{ color: "#F7F8FA" }}>
-            Incluir desayuno de campo 
+            Incluir desayuno de campo
+            <span className="block text-xs text-[#C0DAE0]">
+              Tostadas con dulce casero y manteca + café, té o chocolate. No se cobra en la reserva, solo nos avisás.
+            </span>
           </label>
         </div>
 
@@ -323,6 +330,30 @@ export const Step1 = ({
           />
           <label htmlFor="includeBreakfastAmericano" className="text-sm font-poppins font-extralight" style={{ color: "#F7F8FA" }}>
             Incluir desayuno americano
+            <span className="block text-xs text-[#C0DAE0]">
+              2 tostadas, panceta y 2 huevos + café, té o chocolate. No se cobra en la reserva, solo nos avisás.
+            </span>
+          </label>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="includeDinner"
+            name="includeDinner"
+            checked={formData.includeDinner ?? false}
+            onChange={(e) =>
+              setFormData((prev: any) => ({
+                ...prev,
+                includeDinner: e.target.checked,
+              }))
+            }
+          />
+          <label htmlFor="includeDinner" className="text-sm font-poppins font-extralight" style={{ color: "#F7F8FA" }}>
+            Quiero cenar en el refugio
+            <span className="block text-xs text-[#C0DAE0]">
+              No se cobra en la reserva, solo nos avisás.
+            </span>
           </label>
         </div>
 

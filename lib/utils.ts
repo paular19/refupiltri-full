@@ -25,6 +25,9 @@ export const formToReservationData = (formData: FormData): ReservationData => {
     includeBreakfastAmericano:
       formData.get("includeBreakfastAmericano") === "on" ||
       formData.get("includeBreakfastAmericano") === "true",
+    includeDinner:
+      formData.get("includeDinner") === "on" ||
+      formData.get("includeDinner") === "true",
     isResident:
       formData.get("isResident") === "on" ||
       formData.get("isResident") === "true",
@@ -43,5 +46,6 @@ export function reservationToBookingData(reservation: any): BookingData {
     contactPhone: reservation.contactPhone || "",
     includeBreakfastCampo: reservation.includeBreakfastCampo || false,
     includeBreakfastAmericano: reservation.includeBreakfastAmericano || false,
+    includeDinner: reservation.includeDinner || false,
   };
 }

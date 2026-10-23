@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getReservations } from "@/lib/firebase/reservation-server";
 import { checkAdminAuth } from "@/lib/auth/server";
-import { deleteReservationAction } from "@/app/actions/reservations";
+import { deleteReservation } from "@/lib/reservations";
 import Reservations from "@/components/Admin/Reservations";
 import Filters from "@/components/Admin/Filters";
 import PathStatusSection from "@/components/Admin/PathStatusSection";
@@ -25,7 +25,7 @@ async function handleDeleteReservation(formData: FormData) {
   }
 
   try {
-    await deleteReservationAction(id);
+    await deleteReservation(id);
     revalidatePath("/admin");
   } catch (error) {
     console.error("Error deleting reservation:", error);

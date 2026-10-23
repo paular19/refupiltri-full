@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MercadoPagoConfig, Payment } from "mercadopago";
-import { createReservationAction } from "@/app/actions/reservations";
-import { sendBookingConfirmation } from "@/lib/email";
+import { createReservation, getReservationById } from "@/lib/reservations";
+import { sendAdminAlert, sendBookingConfirmation } from "@/lib/email";
 import { BookingData } from "@/lib/types";
 import { ORIGIN_TYPES } from "@/lib/constants";
 
@@ -65,19 +65,61 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: "Missing booking_data" }, { status: 400 });
         }
 
-        // Crear reserva en Firestore
-        const reservationResult = await createReservationAction({
-          ...bookingData,
-          origin: ORIGIN_TYPES.Web,
-          status: paymentData.status,
-          paymentId: paymentData.id?.toString(),
-        });
+        // MP manda varias notificaciones por el mismo pago: usamos el id del pago
+        // como id de la reserva para no crearla (ni mandar mails) dos veces.
+        const paymentId = paymentData.id?.toString();
+        const reservationId = `mp-${paymentId}`;
 
-        console.log("📝 Resultado createReservationAction:", reservationResult);
+        if (await getReservationById(reservationId)) {
+          console.log("ℹ️ La reserva de este pago ya existe:", reservationId);
+          return NextResponse.json({ received: true });
+        }
+
+        // Crear reserva en Firestore
+        const reservationResult = await createReservation(
+          {
+            ...bookingData,
+            origin: ORIGIN_TYPES.Web,
+            status: paymentData.status,
+            paymentId,
+          },
+          reservationId
+        );
+
+        console.log("📝 Resultado createReservation:", reservationResult);
+
+        if (reservationResult.duplicate) {
+          console.log("ℹ️ La reserva de este pago ya existe:", reservationId);
+          return NextResponse.json({ received: true });
+        }
 
         if (!reservationResult.success || !reservationResult.id) {
-          console.error("🚨 No se pudo crear la reserva:", reservationResult.error);
-          return NextResponse.json({ error: "Reservation creation failed" }, { status: 500 });
+          // Otra notificación del mismo pago pudo haberla creado mientras tanto
+          if (await getReservationById(reservationId)) {
+            return NextResponse.json({ received: true });
+          }
+
+          // El pago está aprobado pero no hay reserva (ej. alguien reservó esas fechas
+          // mientras esta persona pagaba). Hay que avisar para devolver el dinero.
+          console.error("🚨 Pago aprobado sin reserva:", paymentId, reservationResult.error);
+          await sendAdminAlert(
+            `URGENTE: pago aprobado sin reserva - ${bookingData.contactName} ${bookingData.contactLastName}`,
+            [
+              "Se aprobó un pago en MercadoPago pero no se pudo crear la reserva.",
+              "Hay que contactar al cliente y/o devolver el dinero.",
+              "",
+              `Motivo: ${reservationResult.error}`,
+              `Pago MP: ${paymentId}`,
+              `Monto: $${paymentData.transaction_amount}`,
+              `Unidad: ${bookingData.unit} - ${bookingData.persons} persona(s)`,
+              `Fechas: ${bookingData.startDate} a ${bookingData.endDate}`,
+              `Cliente: ${bookingData.contactName} ${bookingData.contactLastName}`,
+              `Email: ${bookingData.contactEmail}`,
+              `Teléfono: ${bookingData.contactPhone}`,
+            ].join("\n")
+          );
+          // 200 para que MP no reintente: reintentar no va a liberar las fechas
+          return NextResponse.json({ received: true });
         }
 
         // Enviar email de confirmación

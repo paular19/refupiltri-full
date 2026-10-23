@@ -4,13 +4,18 @@ import { UNITS } from "./constants";
 import { getReservationsInDateRange } from "./firebase/reservation-server";
 
 // Devuelve la disponibilidad de un unit entre fechas (strings 'YYYY-MM-DD')
+// Cada fecha es una noche: una reserva ocupa de startDate a la noche anterior a endDate,
+// así el día de salida otra persona puede entrar al mismo lugar.
+// excludeReservationId: reserva a ignorar (al editar, para que no choque consigo misma)
 export async function getAvailabilityForUnit(
   unit: UnitType,
   startDate: string,
-  endDate: string
+  endDate: string,
+  excludeReservationId?: string
 ): Promise<AvailabilityDate[]> {
 
-  const reservations: Reservation[] = await getReservationsInDateRange(startDate, endDate);
+  const reservations: Reservation[] = (await getReservationsInDateRange(startDate, endDate))
+    .filter((r) => r.id !== excludeReservationId);
 
   const dates: string[] = [];
   let [y, m, d] = startDate.split('-').map(Number);
@@ -45,7 +50,7 @@ export async function getAvailabilityForUnit(
 
   const availabilityDates: AvailabilityDate[] = dates.map((date) => {
     const conflictingReservations = reservations.filter((reservation) => {
-      const isDateInRange = reservation.startDate <= date && date <= reservation.endDate;
+      const isDateInRange = reservation.startDate <= date && date < reservation.endDate;
       const isUnitConflicting = isUnitConflict(unit, reservation.unit as UnitType);
       const isNotCancelled = reservation.status !== "cancelled";
       return isDateInRange && isUnitConflicting && isNotCancelled;
@@ -60,10 +65,11 @@ export async function getAvailabilityForUnit(
       if (unit === "refugio") {
         remainingCapacity = calculateRefugioCapacity(date, reservations);
         // Restar las personas ya reservadas en refugio
-        const refugioOccupied = conflictingReservations.reduce((sum, r) => sum + r.persons, 0);
+        // Number(): hay reservas viejas con persons guardado como string
+        const refugioOccupied = conflictingReservations.reduce((sum, r) => sum + Number(r.persons), 0);
         remainingCapacity -= refugioOccupied;
       } else {
-        const occupied = conflictingReservations.reduce((sum, r) => sum + r.persons, 0);
+        const occupied = conflictingReservations.reduce((sum, r) => sum + Number(r.persons), 0);
         remainingCapacity = UNITS[unit].capacity - occupied;
       }
     }
@@ -81,7 +87,7 @@ export async function getAvailabilityForUnit(
 // Nueva función para calcular la capacidad del refugio basada en reservas de cabaña/habitaciones
 function calculateRefugioCapacity(date: string, reservations: Reservation[]): number {
   const activeReservationsForDate = reservations.filter((reservation) => {
-    const isDateInRange = reservation.startDate <= date && date <= reservation.endDate;
+    const isDateInRange = reservation.startDate <= date && date < reservation.endDate;
     const isNotCancelled = reservation.status !== "cancelled";
     return isDateInRange && isNotCancelled;
   });
@@ -123,7 +129,8 @@ export async function checkAvailability(
   unit: UnitType,
   persons: number,
   startDate: string,
-  endDate: string
+  endDate: string,
+  excludeReservationId?: string
 ): Promise<{ available: boolean; message?: string }> {
   // Validación adicional de entrada
   if (!unit || !persons || !startDate || !endDate) {
@@ -133,7 +140,8 @@ export async function checkAvailability(
     };
   }
 
-  if (persons <= 0) {
+  persons = Number(persons);
+  if (!Number.isInteger(persons) || persons <= 0) {
     return {
       available: false,
       message: "El número de personas debe ser mayor a cero"
@@ -165,7 +173,9 @@ export async function checkAvailability(
   }
 
   try {
-    const availability = await getAvailabilityForUnit(unit, startDate, endDate);
+    // Solo cuentan las noches: el día de salida no se ocupa
+    const availability = (await getAvailabilityForUnit(unit, startDate, endDate, excludeReservationId))
+      .filter(d => d.date < endDate);
 
     const allDatesAvailable = availability.every(d => {
       return !UNITS[unit].isIndividual ? d.available : d.remainingCapacity >= persons;
@@ -197,10 +207,11 @@ export async function getUnavailableDates(
   unit: UnitType,
   persons: number = 1,
   startDate: string,
-  endDate: string
+  endDate: string,
+  excludeReservationId?: string
 ): Promise<string[]> {
   try {
-    const availability = await getAvailabilityForUnit(unit, startDate, endDate);
+    const availability = await getAvailabilityForUnit(unit, startDate, endDate, excludeReservationId);
 
     return availability
       .filter(d => !UNITS[unit].isIndividual ? !d.available : d.remainingCapacity < persons)

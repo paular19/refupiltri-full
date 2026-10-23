@@ -1,5 +1,6 @@
 export type UnitType =
   | "refugio"
+  | "dormitorio"
   | "camping"
   | "cabana"
   | "habitacion1"
@@ -11,7 +12,7 @@ export interface ReservationUnit {
   type: UnitType;
   name: string;
   capacity: number;
-  isIndividual: boolean; // true for refugio/camping, false for cabana/habitaciones
+  isIndividual: boolean; // true for refugio/camping/dormitorio (cupos por persona), false for cabana/habitaciones
   allowGuestSelection?: boolean; // Nueva propiedad opcional
   minGuests?: number; // Nueva propiedad opcional
   maxGuests?: number; 
@@ -29,6 +30,7 @@ export interface Reservation {
   contactPhone: string;
   includeBreakfastCampo: boolean;
   includeBreakfastAmericano: boolean;
+  includeDinner?: boolean; // solo para saber quién quiere cenar, no se cobra
   origin: "web" | "admin";
   status: "pending" | "confirmed" | "cancelled";
   paymentId?: string;
@@ -58,6 +60,7 @@ export interface FormReservation {
   reason: string | null;
   includeBreakfastCampo?: boolean;
   includeBreakfastAmericano?: boolean;
+  includeDinner?: boolean;
   notifyUser: boolean | null;
   origin?: "web" | "admin" | null;
   status?: "pending" | "confirmed" | "cancelled" | null;
@@ -75,6 +78,8 @@ export interface BookingData {
   contactPhone: string;
   includeBreakfastCampo: boolean;
   includeBreakfastAmericano: boolean;
+  includeDinner?: boolean;
+  isResident?: boolean;
 }
 
 export type ReservationData = any;

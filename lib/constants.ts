@@ -1,4 +1,4 @@
-import { ReservationUnit } from "./types";
+import { BookingData, ReservationUnit } from "./types";
 
 export enum ORIGIN_TYPES {
   Web = "web",
@@ -13,6 +13,15 @@ export enum MP_RESERVATION_STATUS {
 
 export const UNITS: Record<string, ReservationUnit> = {
   refugio: { type: "refugio", name: "Refugio", capacity: 20, isIndividual: true },
+  dormitorio: {
+    type: "dormitorio",
+    name: "Dormitorios compartidos",
+    capacity: 3, // camas en total, compartidas entre reservas
+    isIndividual: true,
+    allowGuestSelection: true,
+    minGuests: 1,
+    maxGuests: 3,
+  },
   camping: { type: "camping", name: "Camping", capacity: 50, isIndividual: true },
   cabana: { type: "cabana", name: "Cabaña completa", capacity: 8, isIndividual: false },
   habitacion1: {
@@ -21,7 +30,7 @@ export const UNITS: Record<string, ReservationUnit> = {
     capacity: 4,
     isIndividual: false,
     allowGuestSelection: true,
-    minGuests: 2,
+    minGuests: 1,
     maxGuests: 4,
   },
   habitacion2: {
@@ -30,7 +39,7 @@ export const UNITS: Record<string, ReservationUnit> = {
     capacity: 3,
     isIndividual: false,
     allowGuestSelection: true,
-    minGuests: 2,
+    minGuests: 1,
     maxGuests: 3,
   },
 };
@@ -38,17 +47,42 @@ export const UNITS: Record<string, ReservationUnit> = {
 type PriceValue = number | Record<number, number>;
 
 export const PRICES: Record<string, PriceValue> = {
-  refugio: 25000,          
-  camping: 13000,
-  cabana: 200000,
-  habitacion1: { 2: 100000, 3: 140000, 4: 150000 },
-  habitacion2: { 2: 100000, 3: 140000 },
-  breakfastC: 12000,  
-  breakfastA: 16000,
-  residentDiscount: 3000,
+  refugio: 38000,          // por persona por noche
+  camping: 18000,          // por persona por noche
+  dormitorio: { 1: 120000, 2: 120000, 3: 160000 }, // por reserva por noche
+  cabana: 250000,          // noches de lunes a jueves
+  cabanaWeekend: 300000,   // noches de viernes, sábado, domingo y feriados
+  habitacion1: { 1: 90000, 2: 90000, 3: 120000, 4: 150000 },
+  habitacion2: { 1: 90000, 2: 90000, 3: 120000 },
+  // Los desayunos no se cobran en la reserva: solo se registra quién lo quiere
 };
 
+// Precio final para residentes (por persona por noche). Solo refugio y camping.
+export const RESIDENT_PRICES: Record<string, number> = {
+  refugio: 35000,
+  camping: 13000,
+};
+
+// Feriados nacionales y días no laborables "puente": sus noches se cobran como fin
+// de semana en la cabaña. Actualizar cada año con el calendario oficial
+// (argentina.gob.ar/interior/feriados); los trasladables y puentes de 2027 se
+// agregan cuando salga el decreto.
+export const HOLIDAYS = [
+  // 2026
+  "2026-11-23", "2026-12-07", "2026-12-08", "2026-12-25",
+  // 2027 (inamovibles)
+  "2027-01-01", "2027-02-08", "2027-02-09", "2027-03-24", "2027-03-26",
+  "2027-04-02", "2027-05-01", "2027-05-25", "2027-06-20", "2027-07-09",
+  "2027-12-08", "2027-12-25",
+];
+
 // --- HELPERS DE PRECIO ---
+
+// Unidades que se cobran por persona. El resto se cobra por reserva según la cantidad de personas.
+const PER_PERSON_UNITS = ["refugio", "camping"];
+
+export const isPricedPerPerson = (unitType: string): boolean =>
+  PER_PERSON_UNITS.includes(unitType);
 
 export const calculateNights = (startDate?: string, endDate?: string): number => {
   if (startDate && endDate) {
@@ -61,7 +95,25 @@ export const calculateNights = (startDate?: string, endDate?: string): number =>
   return 0;
 };
 
-export const getRoomPrice = (unitType: UnitKey, persons: number): number => {
+// Noches de fin de semana entre las fechas: las que empiezan viernes, sábado,
+// domingo o un feriado
+export const countWeekendNights = (startDate?: string, endDate?: string): number => {
+  const nights = calculateNights(startDate, endDate);
+  if (!nights) return 0;
+
+  // Las fechas 'YYYY-MM-DD' se parsean en UTC, igual que en calculateNights
+  const start = new Date(startDate!).getTime();
+  let weekendNights = 0;
+  for (let i = 0; i < nights; i++) {
+    const night = new Date(start + i * 1000 * 60 * 60 * 24);
+    const day = night.getUTCDay();
+    const isHoliday = HOLIDAYS.includes(night.toISOString().slice(0, 10));
+    if (day === 5 || day === 6 || day === 0 || isHoliday) weekendNights++;
+  }
+  return weekendNights;
+};
+
+export const getRoomPrice =(unitType: UnitKey, persons: number): number => {
   const price = PRICES[unitType];
   if (typeof price === "number") return price;
   if (typeof price === "object" && price !== null) return price[persons] || 0;
@@ -75,22 +127,31 @@ export const getResidentDiscount = (
   isResident?: boolean
 ): number => {
   if (!isResident) return 0;
-  if (unitType === "refugio" || unitType === "camping") {
-    return (PRICES.residentDiscount as number) * persons * nights;
-  }
-  return 0;
+  const residentPrice = RESIDENT_PRICES[unitType];
+  if (residentPrice === undefined) return 0;
+  return ((PRICES[unitType] as number) - residentPrice) * persons * nights;
 };
 
 export const getRoomTotalPrice = (
   unitType: string,
   persons: number,
-  nights: number,
+  startDate: string,
+  endDate: string,
   isResident?: boolean
 ): number => {
-  const basePrice = getRoomPrice(unitType as UnitKey, persons);
-  const selectedUnit = UNITS[unitType];
+  const nights = calculateNights(startDate, endDate);
 
-  if (selectedUnit?.isIndividual) {
+  if (unitType === "cabana") {
+    const weekendNights = countWeekendNights(startDate, endDate);
+    return (
+      weekendNights * (PRICES.cabanaWeekend as number) +
+      (nights - weekendNights) * (PRICES.cabana as number)
+    );
+  }
+
+  const basePrice = getRoomPrice(unitType as UnitKey, persons);
+
+  if (isPricedPerPerson(unitType)) {
     const subtotal = basePrice * persons * nights;
     const discount = getResidentDiscount(unitType, persons, nights, isResident);
     return Math.max(0, subtotal - discount);
@@ -99,31 +160,16 @@ export const getRoomTotalPrice = (
   return basePrice * nights;
 };
 
-export const getExtrasPrice = (
-  persons: number,
-  nights: number,
-  includeBreakfastCampo?: boolean,
-  includeBreakfastAmericano?: boolean
-): number => {
-  let extras = 0;
-  if (includeBreakfastCampo) extras += (PRICES.breakfastC as number) * persons * nights;
-  if (includeBreakfastAmericano) extras += (PRICES.breakfastA as number) * persons * nights;
-  return extras;
-};
-
-export const getTotalPrice = (
-  unitType: string,
-  persons: number,
-  nights: number,
-  isResident?: boolean,
-  includeBreakfastCampo?: boolean,
-  includeBreakfastAmericano?: boolean
-): number => {
-  return (
-    getRoomTotalPrice(unitType, persons, nights, isResident) +
-    getExtrasPrice(persons, nights, includeBreakfastCampo, includeBreakfastAmericano)
+// Total de una reserva web. Es el mismo cálculo que se muestra en el resumen (Step3)
+// y el que se cobra en MercadoPago. Los desayunos no suman: no se cobran.
+export const getBookingTotal = (booking: BookingData): number =>
+  getRoomTotalPrice(
+    booking.unit,
+    booking.persons,
+    booking.startDate,
+    booking.endDate,
+    booking.isResident
   );
-};
 
 export type UnitKey = keyof typeof PRICES;
 

@@ -1,7 +1,13 @@
 // app/admin/page.tsx
+import { redirect } from "next/navigation";
 import { updatePathStatusAction } from "@/app/actions/roadUpdate";
+import { checkAdminAuth } from "@/lib/auth/server";
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  if (!(await checkAdminAuth())) {
+    redirect("/admin/login");
+  }
+
   return (
     <div className="max-w-lg mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">Actualizar estado del camino</h1>

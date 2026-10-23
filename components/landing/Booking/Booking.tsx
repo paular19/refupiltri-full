@@ -8,7 +8,6 @@ import { Step1 } from "./Step1";
 import { StepHeaders } from "./StepsHeader";
 import { Info } from "./Info";
 import { FormReservation } from "@/lib/types";
-import { createReservationAction } from "@/app/actions/reservations";
 
 
 const Booking = () => {
@@ -28,6 +27,7 @@ const Booking = () => {
     reason: "",
     includeBreakfastCampo: false,
     includeBreakfastAmericano: false,
+    includeDinner: false,
     notifyUser: true,
     isResident: false, 
   });
@@ -42,7 +42,8 @@ const Booking = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      // el <select> devuelve string; persons se guarda como número
+      [name]: name === "persons" ? Number(value) : value,
     }));
   };
 

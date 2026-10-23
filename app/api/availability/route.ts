@@ -10,6 +10,7 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
     const action = searchParams.get('action') || 'unavailable'; // 'unavailable' or 'validate'
+    const excludeReservationId = searchParams.get('excludeReservationId') || undefined;
 
     if (!unit || !startDate || !endDate) {
       return NextResponse.json(
@@ -20,14 +21,14 @@ export async function GET(request: NextRequest) {
 
     if (action === 'validate') {
       // Validar disponibilidad para fechas específicas
-      const availabilityCheck = await checkAvailability(unit, persons, startDate, endDate);
+      const availabilityCheck = await checkAvailability(unit, persons, startDate, endDate, excludeReservationId);
       return NextResponse.json({ 
         available: availabilityCheck.available,
         message: availabilityCheck.message 
       });
     } else {
       // Obtener fechas no disponibles
-      const unavailableDates = await getUnavailableDates(unit, persons, startDate, endDate);
+      const unavailableDates = await getUnavailableDates(unit, persons, startDate, endDate, excludeReservationId);
       return NextResponse.json({ unavailableDates });
     }
   } catch (error) {

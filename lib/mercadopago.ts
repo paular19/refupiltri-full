@@ -1,37 +1,19 @@
 import { MercadoPagoConfig, Preference } from 'mercadopago';
 import { BookingData } from './types';
-import { getRoomPrice, PRICES, UNITS } from './constants';
-import { differenceInDays } from 'date-fns';
+import { calculateNights, getBookingTotal, UNITS } from './constants';
 
 const client = new MercadoPagoConfig({
   accessToken: process.env.MP_ACCESS_TOKEN!,
 });
-console.log("Using MP token:", process.env.MP_ACCESS_TOKEN);
 
 export async function createPaymentPreference(bookingData: BookingData): Promise<string> {
   const preference = new Preference(client);
 
-  const nights = differenceInDays(bookingData.endDate, bookingData.startDate);
+  const nights = calculateNights(bookingData.startDate, bookingData.endDate);
   const unit = UNITS[bookingData.unit];
 
-  // Calculate base price
-  let basePrice: number;
-  if (unit.isIndividual) {
-    basePrice = getRoomPrice(unit.type, bookingData.persons) * bookingData.persons * nights;
-  } else {
-    basePrice = getRoomPrice(unit.type, bookingData.persons) * nights;
-  }
-
-  // Calculate  TODO VER SI LO PONEMOS
-  const breakfastCPrice = bookingData.includeBreakfastCampo
-    ? (PRICES.breakfastC as number) * bookingData.persons * (nights + 1)
-    : 0;
-
-  const breakfastAPrice = bookingData.includeBreakfastAmericano
-    ? (PRICES.breakfastA as number) * bookingData.persons * (nights + 1)
-    : 0;
-
-  const totalPrice = basePrice + breakfastCPrice + breakfastAPrice;
+  // Mismo cálculo que ve el cliente en el resumen (incluye descuento residente)
+  const totalPrice = getBookingTotal(bookingData);
 
   const preferenceData = {
     items: [
@@ -64,6 +46,6 @@ export async function createPaymentPreference(bookingData: BookingData): Promise
   };
 
   const response = await preference.create({ body: preferenceData });
-  console.log("Preference created:", response);
+  console.log("Preference created:", response.id);
   return response.id!;
 }

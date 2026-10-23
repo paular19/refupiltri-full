@@ -1,4 +1,5 @@
 import { BookingData } from '@/lib/types';
+import { UNITS } from '@/lib/constants';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -46,13 +47,14 @@ export function generateAdminEmailTemplate(
               <li><strong>Cliente:</strong> ${bookingData.contactName} ${bookingData.contactLastName}</li>
               <li><strong>Email:</strong> ${bookingData.contactEmail}</li>
               <li><strong>Teléfono:</strong> ${bookingData.contactPhone}</li>
-              <li><strong>Unidad:</strong> ${bookingData.unit}</li>
+              <li><strong>Unidad:</strong> ${UNITS[bookingData.unit]?.name ?? bookingData.unit}</li>
               <li><strong>Personas:</strong> ${bookingData.persons}</li>
               <li><strong>Check-in:</strong> ${startDateFormatted}</li>
               <li><strong>Check-out:</strong> ${endDateFormatted}</li>
               <li><strong>Servicios extras:</strong> ${[
                 bookingData.includeBreakfastCampo && 'Desayuno de campo',
-                bookingData.includeBreakfastAmericano && 'Desayuno americano'
+                bookingData.includeBreakfastAmericano && 'Desayuno americano',
+                bookingData.includeDinner && 'Cena'
               ].filter(Boolean).join(', ') || 'Ninguno'}</li>
               <li><strong>Origen:</strong> ${isAdminCreated ? 'Creada por administrador' : 'Reserva web con pago confirmado'}</li>
             </ul>

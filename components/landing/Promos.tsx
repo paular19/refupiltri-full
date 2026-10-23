@@ -1,44 +1,53 @@
 "use client";
 import React from "react";
 import Image from "next/image";
+import { PRICES, RESIDENT_PRICES } from "@/lib/constants";
+
+const formatPrice = (value: number) => `$${value.toLocaleString("es-AR")}`;
 
 const Promos = () => {
+  const dormitorio = PRICES.dormitorio as Record<number, number>;
+  const habitacion = PRICES.habitacion1 as Record<number, number>;
+
+  // Opciones de alojamiento (antes eran los paquetes, que ya no se ofrecen)
   const promos = [
     {
-      name: "PROMO\nCACIQUE",
-      price: "$150.000 x persona",
+      name: "DORMITORIOS\nCOMPARTIDOS",
+      tag: "HASTA\n3 PAX",
+      price: `${formatPrice(dormitorio[1])} por noche`,
       description:
-        "Pernocte, desayuno, almuerzo y cena con vino (asado libre)",
-      extra: "$120.000 x persona (si son 4 o más)",
+        "Camas en dormitorio compartido, para 1 a 3 personas por reserva. Incluye ropa de cama.",
+      extra: `1 o 2 personas ${formatPrice(dormitorio[2])} · 3 personas ${formatPrice(dormitorio[3])}`,
     },
     {
-      name: "PROMO\nCÓNDOR",
-      price: "$120.000 x persona",
+      name: "HABITACIONES\nDE LA CABAÑA",
+      tag: "CABAÑA\nHASTA 4 PAX",
+      price: `desde ${formatPrice(habitacion[1])} por noche`,
       description:
-        "Pernocte, desayuno, almuerzo y cena a elección (menú de refugio)",
-      extra: "$90.000 x persona (si son 4 o más)",
+        "Habitación Este (hasta 4 personas) u Oeste (hasta 3 personas). Solo pernocte. Traé tu bolsa de dormir.",
+      extra: `1 o 2 personas ${formatPrice(habitacion[2])} · 3 personas ${formatPrice(habitacion[3])} · 4 personas ${formatPrice(habitacion[4])}`,
     },
     {
-      name: "PROMO\nHALCÓN",
-      price: "$65.000 por persona",
-      description:
-        "Promo pensada para escapadas más cortas, con todo lo esencial incluido.",
-      extra: "$65.000 x persona",
+      name: "CAMPING",
+      tag: "POR\nPERSONA",
+      price: `${formatPrice(PRICES.camping as number)} x persona`,
+      description: "Lugar para acampar, se reserva por persona y por noche. Traé tu bolsa de dormir.",
+      extra: `Residentes de la Comarca Andina: ${formatPrice(RESIDENT_PRICES.camping)} x persona`,
     },
   ];
 
   const additionalServices = [
     {
       name: "ALQUILER DE\nCABAÑA",
-      footer: "(sin comidas)",
+      footer: "(sin comidas · traé tu bolsa de dormir)",
       color: "#C0DAE0",
-      price: "$150.000",
+      price: `desde $${(PRICES.cabana as number).toLocaleString("es-AR")}`,
     },
     {
       name: "PERNOCTE\nEN REFUGIO",
-      footer: "(espacio compartido)",
+      footer: "(espacio compartido · traé tu bolsa de dormir)",
       color: "#492751",
-      price: "$22.000",
+      price: `$${(PRICES.refugio as number).toLocaleString("es-AR")} x persona`,
     },
   ];
 
@@ -50,7 +59,7 @@ const Promos = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-24">
             <h2 className="text-4xl font-poppins font-light text-dark-navy mb-4 text-xs-screen">
-              Promociones & Precios
+              Alojamiento & Precios
             </h2>
             <p className="text-sm font-montserrat text-dark-navy">
               Elige la opción que mejor se adapte a tu aventura
@@ -74,10 +83,8 @@ const Promos = () => {
                   </h3>
                   <div className="w-full mt-auto">
                     <hr className="border-t border-[#F7F8FA] w-full mb-2" />
-                    <span className="block text-sm leading-tight font-montserrat font-light text-[#F7F8FA] uppercase">
-                      CABAÑA
-                      <br />
-                      HASTA 8 PAX
+                    <span className="block text-sm leading-tight font-montserrat font-light text-[#F7F8FA] uppercase whitespace-pre-line">
+                      {promo.tag}
                     </span>
                   </div>
                 </div>
@@ -92,8 +99,8 @@ const Promos = () => {
                     <h3 className="text-[1.75rem] font-poppins font-normal text-white leading-tight whitespace-pre-line">
                       {promo.name}
                     </h3>
-                    <span className="text-sm font-montserrat font-light text-white uppercase">
-                      CABAÑA <br /> HASTA 8 PAX
+                    <span className="text-sm font-montserrat font-light text-white uppercase whitespace-pre-line">
+                      {promo.tag}
                     </span>
                   </div>
 
@@ -110,7 +117,7 @@ const Promos = () => {
                         />
                       </div>
                       <p className="text-sm font-montserrat font-light text-dark-navy">
-                        {promo.description.split(".")[0]}.
+                        {promo.description}
                       </p>
                     </div>
 
@@ -254,7 +261,7 @@ const Promos = () => {
 
                   <div className="mt-2 sm:mt-0">
                     <span className="text-2xl sm:text-3xl font-poppins font-semibold text-[#6E6F30] text-left">
-                      Tenés 20% off
+                      Tenés precio especial
                     </span>
                   </div>
                 </div>
@@ -262,7 +269,7 @@ const Promos = () => {
                 <hr className="border-t border-[#1A222B] w-full" style={{ borderWidth: "1px" }} />
 
                 <p className="text-sm font-montserrat font-light text-dark-navy text-left">
-                  Para aplicar el descuento, solo tenés que mostrarnos tu DNI.
+                  Pagás menos en el pernocte en refugio y en el camping. Elegí la opción &quot;Soy Residente&quot; al reservar y mostranos tu DNI al llegar.
                   <br />
                   Descuento no acumulable con otras promociones.
                 </p>

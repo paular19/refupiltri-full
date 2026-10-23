@@ -1,6 +1,7 @@
 "use server";
 
 import { db, default as admin } from "@/lib/firebase/config";
+import { checkAdminAuth } from "@/lib/auth/server";
 
 const COLLECTION_NAME = "pathStatus";
 
@@ -11,6 +12,10 @@ export async function updatePathStatusAction(
   newStatus: string,
   origin: string
 ): Promise<{ success: boolean; error?: string }> {
+  if (!(await checkAdminAuth())) {
+    return { success: false, error: "No autorizado" };
+  }
+
   try {
     const now = admin.firestore.Timestamp.now();
     const docRef = db.collection(COLLECTION_NAME).doc("current");

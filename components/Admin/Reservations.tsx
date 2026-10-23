@@ -40,6 +40,7 @@ export default function Reservations({ reservations, deleteAction }: Reservation
                 <TableHead>Fechas</TableHead>
                 <TableHead>Desayuno de Campo</TableHead>
                 <TableHead>Desayuno Americano</TableHead>
+                <TableHead>Cena</TableHead>
                 <TableHead>Residente</TableHead>
                 <TableHead>Estado</TableHead>
                 <TableHead>Origen</TableHead>
@@ -82,6 +83,13 @@ export default function Reservations({ reservations, deleteAction }: Reservation
                   </TableCell>
                   <TableCell>
                     {reservation.includeBreakfastAmericano ? (
+                      <Badge variant="default">Sí</Badge>
+                    ) : (
+                      <Badge variant="secondary">No</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {reservation.includeDinner ? (
                       <Badge variant="default">Sí</Badge>
                     ) : (
                       <Badge variant="secondary">No</Badge>

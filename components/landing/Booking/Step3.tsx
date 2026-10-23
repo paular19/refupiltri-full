@@ -3,30 +3,25 @@ import {
   UNITS,
   PRICES,
   calculateNights,
+  countWeekendNights,
   getRoomPrice,
   getResidentDiscount,
   getRoomTotalPrice,
-  getTotalPrice,
+  isPricedPerPerson,
 } from "@/lib/constants";
 
 export const Step3 = ({ formData }: { formData: FormReservation }) => {
   const nights = calculateNights(formData.startDate, formData.endDate);
+  const weekendNights = countWeekendNights(formData.startDate, formData.endDate);
+  const weekdayNights = nights - weekendNights;
   const persons = formData.persons || 1;
   const unitType = formData.unit || "refugio";
   const selectedUnit = UNITS[unitType];
 
   // Precios
-  const roomTotalPrice = getRoomTotalPrice(unitType, persons, nights, formData.isResident);
+  const roomTotalPrice = getRoomTotalPrice(unitType, persons, formData.startDate, formData.endDate, formData.isResident);
   const baseRoomPrice = getRoomPrice(unitType, persons);
   const residentDiscount = getResidentDiscount(unitType, persons, nights, formData.isResident);
-
-  const breakfastCTotalPrice = formData.includeBreakfastCampo
-    ? (PRICES.breakfastC as number) * persons * nights
-    : 0;
-
-  const breakfastATotalPrice = formData.includeBreakfastAmericano
-    ? (PRICES.breakfastA as number) * persons * nights
-    : 0;
 
   return (
     <div className="space-y-6">
@@ -43,6 +38,7 @@ export const Step3 = ({ formData }: { formData: FormReservation }) => {
         contactPhone: formData.contactPhone,
         includeBreakfastCampo: formData.includeBreakfastCampo,
         includeBreakfastAmericano: formData.includeBreakfastAmericano,
+        includeDinner: formData.includeDinner,
         isResident: formData.isResident,
         notifyUser: formData.notifyUser,
       }).map(([key, value]) => (
@@ -74,14 +70,29 @@ export const Step3 = ({ formData }: { formData: FormReservation }) => {
             <span>{selectedUnit?.name || unitType}</span>
           </div>
 
-          {selectedUnit?.isIndividual ? (
+          {unitType === "cabana" ? (
+            <>
+              {weekdayNights > 0 && (
+                <div className="flex justify-between">
+                  <span>Noches de semana ({weekdayNights} x ${(PRICES.cabana as number).toLocaleString("es-AR")}):</span>
+                  <span>${(weekdayNights * (PRICES.cabana as number)).toLocaleString("es-AR")}</span>
+                </div>
+              )}
+              {weekendNights > 0 && (
+                <div className="flex justify-between">
+                  <span>Noches de fin de semana/feriado ({weekendNights} x ${(PRICES.cabanaWeekend as number).toLocaleString("es-AR")}):</span>
+                  <span>${(weekendNights * (PRICES.cabanaWeekend as number)).toLocaleString("es-AR")}</span>
+                </div>
+              )}
+            </>
+          ) : isPricedPerPerson(unitType) ? (
             <div className="flex justify-between">
               <span>Precio por persona/noche:</span>
               <span>${baseRoomPrice.toLocaleString("es-AR")}</span>
             </div>
           ) : (
             <div className="flex justify-between">
-              <span>Precio por noche ({persons} personas):</span>
+              <span>Precio por noche ({persons} {persons === 1 ? "persona" : "personas"}):</span>
               <span>${baseRoomPrice.toLocaleString("es-AR")}</span>
             </div>
           )}
@@ -93,21 +104,27 @@ export const Step3 = ({ formData }: { formData: FormReservation }) => {
             </div>
           )}
 
-          <div className="flex justify-between font-semibold">
-            <span>Subtotal habitación:</span>
-            <span>${roomTotalPrice.toLocaleString("es-AR")}</span>
-          </div>
-
           {formData.includeBreakfastCampo && (
             <div className="flex justify-between">
-              <span>Desayuno de campo({persons} x {nights}):</span>
-              <span>${breakfastCTotalPrice.toLocaleString("es-AR")}</span>
+              <span>Desayuno de campo:</span>
+              <span>Pedido</span>
             </div>
           )}
           {formData.includeBreakfastAmericano && (
             <div className="flex justify-between">
-              <span>Desayuno americano ({persons} x {nights}):</span>
-              <span>${breakfastATotalPrice.toLocaleString("es-AR")}</span>
+              <span>Desayuno americano:</span>
+              <span>Pedido</span>
+            </div>
+          )}
+          {formData.includeDinner && (
+            <div className="flex justify-between">
+              <span>Cena:</span>
+              <span>Pedida</span>
+            </div>
+          )}
+          {(formData.includeBreakfastCampo || formData.includeBreakfastAmericano || formData.includeDinner) && (
+            <div className="text-sm text-[#C0DAE0]">
+              Las comidas no se cobran en la reserva: solo nos avisás para tenerlas en cuenta.
             </div>
           )}
         </div>
@@ -115,7 +132,7 @@ export const Step3 = ({ formData }: { formData: FormReservation }) => {
         <div className="border-t border-gray-400 pt-3">
           <div className="flex justify-between text-xl font-poppins font-bold">
             <span>Total:</span>
-            <span>${getTotalPrice(unitType, persons, nights, formData.isResident, formData.includeBreakfastCampo, formData.includeBreakfastAmericano).toLocaleString("es-AR")}</span>
+            <span>${roomTotalPrice.toLocaleString("es-AR")}</span>
           </div>
           {formData.isResident && residentDiscount > 0 && (
             <div className="text-sm text-[#C0DAE0] mt-1">

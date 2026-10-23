@@ -46,3 +46,17 @@ export async function sendBookingConfirmation(
     // No lanzar error para no interrumpir el flujo de creación de reservas
   }
 }
+
+// Aviso al admin de algo que requiere acción manual (ej. pago aprobado sin reserva)
+export async function sendAdminAlert(subject: string, text: string) {
+  try {
+    await resend.emails.send({
+      from: 'Sistema Reservas <reservas@refugiopiltriquitron.com>',
+      to: [process.env.ADMIN_EMAIL!],
+      subject,
+      text,
+    });
+  } catch (error) {
+    console.error('Error enviando alerta al admin:', error);
+  }
+}

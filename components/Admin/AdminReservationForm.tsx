@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { DayPicker } from 'react-day-picker';
 import { es } from 'date-fns/locale';
-import { parseISO, addMonths, startOfDay, format } from 'date-fns';
+import { parseISO, addMonths, startOfDay, format, subDays } from 'date-fns';
 import { UnitType, FormReservation, Reservation } from '@/lib/types';
 import { UNITS, RESERVATION_STATUS, getRoomPrice } from '@/lib/constants';
 import { Button } from "@/components/ui/button";
@@ -65,6 +65,7 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
         reason: reservation.reason || '',
         includeBreakfastCampo: reservation.includeBreakfastCampo || false,
         includeBreakfastAmericano: reservation.includeBreakfastAmericano || false,
+        includeDinner: reservation.includeDinner || false,
         isResident: reservation.isResident || false,
         notifyUser: false,
         status: reservation.status || 'confirmed',
@@ -86,6 +87,7 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
       reason: '',
       includeBreakfastCampo: false,
       includeBreakfastAmericano: false,
+      includeDinner: false,
       isResident: false,
       notifyUser: true,
       status: 'confirmed',
@@ -195,7 +197,11 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
   const isDateUnavailable = (date: Date) => {
     const dateStr = format(startOfDay(date), 'yyyy-MM-dd');
     const todayStr = format(startOfDay(new Date()), 'yyyy-MM-dd');
-    return dateStr < todayStr || unavailableDatesSet.has(dateStr);
+    if (dateStr < todayStr) return true;
+    // Las fechas no disponibles son noches completas: para salir un día alcanza
+    // con que esté libre la noche anterior
+    const night = selectingStart ? date : subDays(date, 1);
+    return unavailableDatesSet.has(format(startOfDay(night), 'yyyy-MM-dd'));
   };
 
   const handleInputChange = (name: string, value: any) => {
@@ -244,6 +250,7 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
       formDataToSubmit.append('status', formData.status || 'confirmed');
       formDataToSubmit.append('includeBreakfastCampo', formData.includeBreakfastCampo ? 'true' : 'false');
       formDataToSubmit.append('includeBreakfastAmericano', formData.includeBreakfastAmericano ? 'true' : 'false');
+      formDataToSubmit.append('includeDinner', formData.includeDinner ? 'true' : 'false');
       formDataToSubmit.append('isResident', formData.isResident ? 'true' : 'false'); // ✅ AGREGADO
 
       const reservationData = formToReservationData(formDataToSubmit);
@@ -513,6 +520,15 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
                 onCheckedChange={(checked) => handleInputChange('includeBreakfastAmericano', checked)}
               />
               <Label htmlFor="includeBreakfastAmericano">Incluir desayuno americano</Label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="includeDinner"
+                checked={formData.includeDinner || false}
+                onCheckedChange={(checked) => handleInputChange('includeDinner', checked)}
+              />
+              <Label htmlFor="includeDinner">Quiere cenar</Label>
             </div>
 
             <div className="flex items-center space-x-2">

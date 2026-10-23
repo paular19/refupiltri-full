@@ -31,7 +31,7 @@ const Recomendaciones = () => {
     {
       icon: "/icono5-rec.png",
       title: "TRAÉ BOLSA DE DORMIR",
-      text: "SI VAS A DORMIR EN EL REFUGIO ES ESENCIAL TRAER TU BOLSA DE DORMIR",
+      text: "SOLO LOS DORMITORIOS INCLUYEN ROPA DE CAMA. EN EL REFUGIO, LA CABAÑA Y EL CAMPING ES ESENCIAL TRAER TU BOLSA DE DORMIR",
       size: "w-12 h-12",
     },
     {

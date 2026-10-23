@@ -1,4 +1,5 @@
 import { BookingData } from '@/lib/types';
+import { UNITS } from '@/lib/constants';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -45,12 +46,13 @@ export function generateCustomerEmailTemplate(
             <h3>Detalles de la Reserva</h3>
             <ul>
               <li><strong>ID de Reserva:</strong> ${reservationId}</li>
-              <li><strong>Unidad:</strong> ${bookingData.unit}</li>
+              <li><strong>Unidad:</strong> ${UNITS[bookingData.unit]?.name ?? bookingData.unit}</li>
               <li><strong>Personas:</strong> ${bookingData.persons}</li>
               <li><strong>Fecha de Entrada:</strong> ${startDateFormatted}</li>
               <li><strong>Fecha de Salida:</strong> ${endDateFormatted}</li>
-              <li><strong>Desayuno de campo:</strong> ${bookingData.includeBreakfastCampo ? 'Incluido' : 'No incluido'}</li>
-              <li><strong>Desayuno americano:</strong> ${bookingData.includeBreakfastAmericano ? 'Incluido' : 'No incluido'}</li>
+              <li><strong>Desayuno de campo:</strong> ${bookingData.includeBreakfastCampo ? 'Pedido (no se cobra en la reserva)' : 'No'}</li>
+              <li><strong>Desayuno americano:</strong> ${bookingData.includeBreakfastAmericano ? 'Pedido (no se cobra en la reserva)' : 'No'}</li>
+              <li><strong>Cena:</strong> ${bookingData.includeDinner ? 'Pedida (no se cobra en la reserva)' : 'No'}</li>
             </ul>
           </div>
 
