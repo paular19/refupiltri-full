@@ -1,4 +1,5 @@
 import { Reservation } from "../types";
+import { isCancelledStatus } from "../constants";
 
 import { db, auth, default as admin } from "./config";
 
@@ -81,7 +82,7 @@ export async function getReservationsInDateRange(
   const reservations = snapshot.docs
       .filter((doc) => {
         const data = doc.data();
-        return data.status !== "cancelled";
+        return !isCancelledStatus(data.status);
       })
       .map((doc) => {
         const data = doc.data();
@@ -118,7 +119,7 @@ export async function getReservationsForUnit(
       .get();
 
     return snapshot.docs
-      .filter((doc) => doc.data().status !== "cancelled")
+      .filter((doc) => !isCancelledStatus(doc.data().status))
       .map((doc) => {
         const data = doc.data();
         return {

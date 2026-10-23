@@ -1,6 +1,6 @@
 // lib/availability.ts
 import { UnitType, AvailabilityDate, Reservation } from "./types";
-import { UNITS } from "./constants";
+import { UNITS, isCancelledStatus } from "./constants";
 import { getReservationsInDateRange } from "./firebase/reservation-server";
 
 // Devuelve la disponibilidad de un unit entre fechas (strings 'YYYY-MM-DD')
@@ -52,7 +52,7 @@ export async function getAvailabilityForUnit(
     const conflictingReservations = reservations.filter((reservation) => {
       const isDateInRange = reservation.startDate <= date && date < reservation.endDate;
       const isUnitConflicting = isUnitConflict(unit, reservation.unit as UnitType);
-      const isNotCancelled = reservation.status !== "cancelled";
+      const isNotCancelled = !isCancelledStatus(reservation.status);
       return isDateInRange && isUnitConflicting && isNotCancelled;
     });
 
@@ -88,7 +88,7 @@ export async function getAvailabilityForUnit(
 function calculateRefugioCapacity(date: string, reservations: Reservation[]): number {
   const activeReservationsForDate = reservations.filter((reservation) => {
     const isDateInRange = reservation.startDate <= date && date < reservation.endDate;
-    const isNotCancelled = reservation.status !== "cancelled";
+    const isNotCancelled = !isCancelledStatus(reservation.status);
     return isDateInRange && isNotCancelled;
   });
 

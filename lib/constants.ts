@@ -175,6 +175,10 @@ export type UnitKey = keyof typeof PRICES;
 
 export const RESERVATION_STATUS = ["pendiente", "confirmada", "cancelada"];
 
+// El admin guarda "cancelada" y las reservas viejas/MP usan "cancelled": las dos liberan las fechas
+export const isCancelledStatus = (status?: string | null): boolean =>
+  status === "cancelled" || status === "cancelada";
+
 export const ADMIN_EMAILS = [
   "ramospaula1996@gmail.com",
   "lucianoguasco@gmail.com",

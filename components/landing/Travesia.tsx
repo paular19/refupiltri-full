@@ -26,23 +26,29 @@ const Travesia = () => {
     },
   ];
 
-  const travesias = [
+  const travesias: {
+    title: string;
+    description: string;
+    items?: string[];
+    image: string;
+  }[] = [
     {
-      title: "MIRADOR DE LOS LAGOS",
+      title: "CAMINATAS",
       description:
-        "Ubicado en el icónico Cerro Piltriquitrón de El Bolsón, nuestro refugio es más que un lugar: es una pausa en el camino, un rincón donde el tiempo se estira y la naturaleza te habla bajito.",
+        "Desde el refugio salen las caminatas a los lugares más lindos del Cerro Piltriquitrón:",
+      items: ["Mirador de los Lagos", "Cumbre Huemul", "Cumbre Piltriquitrón"],
       image: "/img-serv1.jpg",
     },
     {
-      title: "CUMBRE HUEMUL",
+      title: "Cumbre al amanecer – Cerro Piltriquitrón",
       description:
-        "Ubicado en el icónico Cerro Piltriquitrón de El Bolsón, nuestro refugio es más que un lugar: es una pausa en el camino, un rincón donde el tiempo se estira y la naturaleza te habla bajito.",
+        "Viví la magia de ver nacer el día desde la cumbre del Piltriquitrón. 🏔️\n\nUna experiencia guiada para conectar con la montaña, caminar bajo las estrellas y recibir los primeros rayos del sol con una vista inolvidable de la cordillera y el valle de El Bolsón.\n\n✨ Animate a vivir el amanecer desde otro lugar.\n\n📩 Consultanos por próximas salidas y reservas.",
       image: "/img-serv1.jpg",
     },
     {
-      title: "CUMBRE PILTRIQUITRÓN",
+      title: "Caminata nocturna",
       description:
-        "Ubicado en el icónico Cerro Piltriquitrón de El Bolsón, nuestro refugio es más que un lugar: es una pausa en el camino, un rincón donde el tiempo se estira y la naturaleza te habla bajito.",
+        "Recorré la montaña de noche, con la luz de la luna y un cielo lleno de estrellas. 🌙\n\nUna salida guiada para escuchar el silencio del cerro, mirar el cielo lejos de las luces de la ciudad y vivir el Piltriquitrón de una forma distinta.\n\n📩 Consultanos por próximas salidas y reservas.",
       image: "/img-serv1.jpg",
     },
   ];
@@ -85,9 +91,16 @@ const Travesia = () => {
               <h3 className="text-base font-semibold text-[#6E6F30] uppercase mb-2">
                 {t.title}
               </h3>
-              <p className="text-gray-600 text-sm leading-relaxed mb-3">
+              <p className="text-gray-600 text-sm leading-relaxed mb-3 whitespace-pre-line">
                 {t.description}
               </p>
+              {t.items && (
+                <ul className="text-gray-600 text-sm leading-relaxed mb-3 list-disc pl-5">
+                  {t.items.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              )}
               <div className="relative w-full h-48 sm:h-48 lg:h-56">
                 <Image
                   src={t.image}

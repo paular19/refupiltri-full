@@ -6,6 +6,7 @@ import { deleteReservation } from "@/lib/reservations";
 import Reservations from "@/components/Admin/Reservations";
 import Filters from "@/components/Admin/Filters";
 import PathStatusSection from "@/components/Admin/PathStatusSection";
+import MealsSummary from "@/components/Admin/MealsSummary";
 import { LogOut } from "@/components/Admin/LogOut";
 
 interface AdminPageProps {
@@ -59,6 +60,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           <div className="float-right ml-2">
             <LogOut />
           </div>
+          <MealsSummary />
           <Filters searchParams={searchParams} />
           <Reservations
             reservations={reservations}
