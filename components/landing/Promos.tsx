@@ -18,6 +18,7 @@ const Promos = () => {
       description:
         "Camas en dormitorio compartido, para 1 a 3 personas por reserva. Incluye ropa de cama.",
       extra: `1 o 2 personas ${formatPrice(dormitorio[2])} · 3 personas ${formatPrice(dormitorio[3])}`,
+      icon: "/mate.png",
     },
     {
       name: "HABITACIONES\nDE LA CABAÑA",
@@ -26,6 +27,8 @@ const Promos = () => {
       description:
         "Habitación Este (hasta 4 personas) u Oeste (hasta 3 personas). Solo pernocte. Traé tu bolsa de dormir.",
       extra: `1 o 2 personas ${formatPrice(habitacion[2])} · 3 personas ${formatPrice(habitacion[3])} · 4 personas ${formatPrice(habitacion[4])}`,
+      icon: "/icono2-ab.png",
+      darkenIcon: true,
     },
     {
       name: "CAMPING",
@@ -33,6 +36,7 @@ const Promos = () => {
       price: `${formatPrice(PRICES.camping as number)} x persona`,
       description: "Lugar para acampar, se reserva por persona y por noche. Traé tu bolsa de dormir.",
       extra: `Residentes de la Comarca Andina: ${formatPrice(RESIDENT_PRICES.camping)} x persona`,
+      icon: "/icono9-rec.png",
     },
   ];
 
@@ -42,12 +46,15 @@ const Promos = () => {
       footer: "(sin comidas · traé tu bolsa de dormir)",
       color: "#C0DAE0",
       price: `desde $${(PRICES.cabana as number).toLocaleString("es-AR")}`,
+      icon: "/icono2-ab.png",
+      darkenIcon: true,
     },
     {
       name: "PERNOCTE\nEN REFUGIO",
       footer: "(espacio compartido · traé tu bolsa de dormir)",
       color: "#492751",
       price: `$${(PRICES.refugio as number).toLocaleString("es-AR")} x persona`,
+      icon: "/icono5-rec.png",
     },
   ];
 
@@ -110,10 +117,10 @@ const Promos = () => {
                     <div className="flex flex-col items-start">
                       <div className="h-12 w-12 mb-4 relative">
                         <Image
-                          src="/mate.png"
-                          alt="Mate"
+                          src={promo.icon}
+                          alt=""
                           fill
-                          className="object-contain"
+                          className={`object-contain ${promo.darkenIcon ? "brightness-0" : ""}`}
                         />
                       </div>
                       <p className="text-sm font-montserrat font-light text-dark-navy">
@@ -207,10 +214,10 @@ const Promos = () => {
                     <div className="flex flex-col items-start">
                       <div className="h-12 w-12 mb-4 relative">
                         <Image
-                          src="/mate.png"
-                          alt="Sticker"
+                          src={service.icon}
+                          alt=""
                           fill
-                          className="object-contain"
+                          className={`object-contain ${service.darkenIcon ? "brightness-0" : ""}`}
                         />
                       </div>
                       <p className="text-sm font-montserrat font-light text-dark-navy">
