@@ -42,13 +42,13 @@ const Travesia = () => {
     {
       title: "Cumbre al amanecer – Cerro Piltriquitrón",
       description:
-        "Viví la magia de ver nacer el día desde la cumbre del Piltriquitrón. 🏔️\n\nUna experiencia guiada para conectar con la montaña, caminar bajo las estrellas y recibir los primeros rayos del sol con una vista inolvidable de la cordillera y el valle de El Bolsón.\n\n✨ Animate a vivir el amanecer desde otro lugar.\n\n📩 Consultanos por próximas salidas y reservas.",
+        "Viví la magia de ver nacer el día desde la cumbre del Piltriquitrón. Una experiencia guiada para conectar con la montaña, caminar bajo las estrellas y recibir los primeros rayos del sol con una vista inolvidable de la cordillera y el valle de El Bolsón. Animate a vivir el amanecer desde otro lugar. Consultanos por próximas salidas y reservas.",
       image: "/img-serv1.jpg",
     },
     {
       title: "Caminata nocturna",
       description:
-        "Recorré la montaña de noche, con la luz de la luna y un cielo lleno de estrellas. 🌙\n\nUna salida guiada para escuchar el silencio del cerro, mirar el cielo lejos de las luces de la ciudad y vivir el Piltriquitrón de una forma distinta.\n\n📩 Consultanos por próximas salidas y reservas.",
+        "Recorré la montaña de noche, con la luz de la luna y un cielo lleno de estrellas. Una salida guiada para escuchar el silencio del cerro, mirar el cielo lejos de las luces de la ciudad y vivir el Piltriquitrón de una forma distinta. Consultanos por próximas salidas y reservas.",
       image: "/img-serv1.jpg",
     },
   ];
@@ -91,7 +91,7 @@ const Travesia = () => {
               <h3 className="text-base font-semibold text-[#6E6F30] uppercase mb-2">
                 {t.title}
               </h3>
-              <p className="text-gray-600 text-sm leading-relaxed mb-3 whitespace-pre-line">
+              <p className="text-gray-600 text-sm leading-relaxed mb-3">
                 {t.description}
               </p>
               {t.items && (
@@ -101,7 +101,8 @@ const Travesia = () => {
                   ))}
                 </ul>
               )}
-              <div className="relative w-full h-48 sm:h-48 lg:h-56">
+              {/* mt-auto: la foto va al pie para que quede alineada entre cards */}
+              <div className="relative w-full h-48 sm:h-48 lg:h-56 mt-auto">
                 <Image
                   src={t.image}
                   alt={t.title}
