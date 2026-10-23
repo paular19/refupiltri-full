@@ -6,42 +6,43 @@ import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 const Gallery = () => {
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
 
-  const images = [
+  const images: { url: string; alt: string; position?: string }[] = [
     {
-      url: "https://images.pexels.com/photos/417173/pexels-photo-417173.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-      alt: "Vista panorámica del refugio"
+      url: "/galeria/refugio-flores.jpg",
+      alt: "El refugio entre flores amarillas"
     },
     {
-      url: "https://images.pexels.com/photos/1761279/pexels-photo-1761279.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-      alt: "Interior acogedor del refugio"
+      url: "/galeria/luna-cerro.jpg",
+      alt: "La luna asomando sobre las agujas del cerro"
     },
     {
-      url: "https://images.pexels.com/photos/1271619/pexels-photo-1271619.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-      alt: "Habitación con vista a la montaña"
+      url: "/galeria/pan-casero.jpg",
+      alt: "Pan casero recién cortado"
     },
     {
-      url: "https://images.pexels.com/photos/1054218/pexels-photo-1054218.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-      alt: "Sendero hacia el refugio"
+      url: "/galeria/condor.jpg",
+      alt: "Cóndor sobrevolando el valle en otoño"
     },
     {
-      url: "https://images.pexels.com/photos/1624496/pexels-photo-1624496.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-      alt: "Lago cercano al refugio"
+      url: "/galeria/subida-nieve.jpg",
+      alt: "Subiendo por la nieve"
     },
     {
-      url: "https://images.pexels.com/photos/1032650/pexels-photo-1032650.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-      alt: "Comedor del refugio"
+      url: "/galeria/pava-mate.jpg",
+      alt: "Agua caliente para el mate",
+      position: "50% 20%"
     },
     {
-      url: "https://images.pexels.com/photos/1287145/pexels-photo-1287145.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-      alt: "Actividades al aire libre"
+      url: "/galeria/atardecer-cerro.jpg",
+      alt: "Atardecer de fuego sobre el cerro"
     },
     {
-      url: "https://images.pexels.com/photos/1420440/pexels-photo-1420440.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-      alt: "Atardecer en la montaña"
+      url: "/galeria/orquidea.jpg",
+      alt: "Orquídea silvestre"
     },
     {
-      url: "https://images.pexels.com/photos/1366919/pexels-photo-1366919.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop",
-      alt: "Flora local"
+      url: "/galeria/descanso-valle.jpg",
+      alt: "Un descanso con vista al valle"
     }
   ];
 
@@ -76,6 +77,7 @@ const Gallery = () => {
                   src={image.url}
                   alt={image.alt}
                   fill
+                  style={{ objectPosition: image.position }}
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               </div>

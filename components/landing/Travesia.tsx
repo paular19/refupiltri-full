@@ -37,19 +37,19 @@ const Travesia = () => {
       description:
         "Desde el refugio salen las caminatas a los lugares más lindos del Cerro Piltriquitrón:",
       items: ["Mirador de los Lagos", "Cumbre Huemul", "Cumbre Piltriquitrón"],
-      image: "/img-serv1.jpg",
+      image: "/caminatas.jpg",
     },
     {
       title: "Cumbre al amanecer – Cerro Piltriquitrón",
       description:
         "Viví la magia de ver nacer el día desde la cumbre del Piltriquitrón. Una experiencia guiada para conectar con la montaña, caminar bajo las estrellas y recibir los primeros rayos del sol con una vista inolvidable de la cordillera y el valle de El Bolsón. Animate a vivir el amanecer desde otro lugar. Consultanos por próximas salidas y reservas.",
-      image: "/img-serv1.jpg",
+      image: "/cumbre-amanecer.jpg",
     },
     {
       title: "Caminata nocturna",
       description:
         "Recorré la montaña de noche, con la luz de la luna y un cielo lleno de estrellas. Una salida guiada para escuchar el silencio del cerro, mirar el cielo lejos de las luces de la ciudad y vivir el Piltriquitrón de una forma distinta. Consultanos por próximas salidas y reservas.",
-      image: "/img-serv1.jpg",
+      image: "/caminata-nocturna.jpg",
     },
   ];
 
