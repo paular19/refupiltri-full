@@ -30,7 +30,7 @@ const Services = () => {
           ?.scrollIntoView({ behavior: "smooth" }),
     },
     {
-      image: "/img-serv3.jpg",
+      image: "/servicios-adicionales.jpg",
       title: "SERVICIOS ADICIONALES",
       features: ["TRASLADOS", "SALIDAS GUIADAS", "ASESORAMIENTO"],
       buttonText: "CONSULTAR",
