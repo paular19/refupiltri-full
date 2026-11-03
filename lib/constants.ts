@@ -15,9 +15,10 @@ export const UNITS: Record<string, ReservationUnit> = {
   refugio: { type: "refugio", name: "Refugio", capacity: 20, isIndividual: true },
   dormitorio: {
     type: "dormitorio",
-    name: "Dormitorios compartidos",
-    capacity: 3, // camas en total, compartidas entre reservas
-    isIndividual: true,
+    name: "Dormitorios",
+    capacity: 3, // personas por dormitorio; cada reserva ocupa un dormitorio entero
+    rooms: 3, // hay 3 dormitorios iguales
+    isIndividual: false,
     allowGuestSelection: true,
     minGuests: 1,
     maxGuests: 3,

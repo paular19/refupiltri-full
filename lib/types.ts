@@ -12,10 +12,11 @@ export interface ReservationUnit {
   type: UnitType;
   name: string;
   capacity: number;
-  isIndividual: boolean; // true for refugio/camping/dormitorio (cupos por persona), false for cabana/habitaciones
+  isIndividual: boolean; // true for refugio/camping (cupos por persona), false for cabana/habitaciones/dormitorio
   allowGuestSelection?: boolean; // Nueva propiedad opcional
   minGuests?: number; // Nueva propiedad opcional
   maxGuests?: number; 
+  rooms?: number; // cuántas unidades iguales hay (dormitorios); por defecto 1
 }
 
 export interface Reservation {

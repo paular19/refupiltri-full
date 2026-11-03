@@ -13,22 +13,21 @@ describe("cupos sin otras reservas", () => {
   it.each([
     ["refugio", 20],
     ["camping", 50],
-    ["dormitorio", 3],
   ])("%s acepta hasta su cupo (%i)", async (unit, cap) => {
     expect((await checkAvailability(unit as UnitType, cap, S, E)).available).toBe(true);
     expect((await checkAvailability(unit as UnitType, cap + 1, S, E)).available).toBe(false);
   });
 
-  it.each(["cabana", "habitacion1", "habitacion2"])("%s está libre", async (unit) => {
+  it.each(["cabana", "habitacion1", "habitacion2", "dormitorio"])("%s está libre", async (unit) => {
     expect((await checkAvailability(unit as UnitType, 2, S, E)).available).toBe(true);
   });
 });
 
 describe("refugio comparte espacio con la cabaña", () => {
-  it("baja a 15 con una habitación reservada", async () => {
+  it("baja a 16 con una habitación reservada", async () => {
     seed("h1", { unit: "habitacion1", persons: 2 });
-    expect((await checkAvailability("refugio", 15, S, E)).available).toBe(true);
-    expect((await checkAvailability("refugio", 16, S, E)).available).toBe(false);
+    expect((await checkAvailability("refugio", 16, S, E)).available).toBe(true);
+    expect((await checkAvailability("refugio", 17, S, E)).available).toBe(false);
   });
 
   it("baja a 10 con la cabaña completa", async () => {
@@ -60,7 +59,7 @@ describe("refugio comparte espacio con la cabaña", () => {
   it("solo baja las noches en que la habitación está ocupada", async () => {
     seed("h1", { unit: "habitacion1", startDate: "2026-11-10", endDate: "2026-11-11" });
     const dias = await getAvailabilityForUnit("refugio", "2026-11-10", "2026-11-11");
-    expect(dias.find((d) => d.date === "2026-11-10")!.remainingCapacity).toBe(15);
+    expect(dias.find((d) => d.date === "2026-11-10")!.remainingCapacity).toBe(16);
     expect(dias.find((d) => d.date === "2026-11-11")!.remainingCapacity).toBe(20);
   });
 });
@@ -79,6 +78,25 @@ describe("cabaña y habitaciones se excluyen", () => {
     expect((await checkAvailability("habitacion2", 1, S, E)).available).toBe(true);
   });
 
+  it("la cabaña no se alquila si el refugio ya usa sus lugares", async () => {
+    seed("r", { unit: "refugio", persons: 15 });
+    expect((await checkAvailability("cabana", 8, S, E)).available).toBe(false);
+    // con una habitación el refugio queda en 16: entran los 15
+    expect((await checkAvailability("habitacion1", 2, S, E)).available).toBe(true);
+    expect((await checkAvailability("habitacion2", 2, S, E)).available).toBe(true);
+  });
+
+  it("con el refugio en 10 o menos la cabaña se alquila", async () => {
+    seed("r", { unit: "refugio", persons: 10 });
+    expect((await checkAvailability("cabana", 8, S, E)).available).toBe(true);
+  });
+
+  it("con 13 en el refugio entra una habitación pero no las dos (quedaría en 10)", async () => {
+    seed("r", { unit: "refugio", persons: 13 });
+    seed("h1", { unit: "habitacion1", persons: 2 });
+    expect((await checkAvailability("habitacion2", 2, S, E)).available).toBe(false);
+  });
+
   it("isUnitConflict", () => {
     expect(isUnitConflict("cabana", "habitacion1")).toBe(true);
     expect(isUnitConflict("habitacion2", "cabana")).toBe(true);
@@ -88,11 +106,21 @@ describe("cabaña y habitaciones se excluyen", () => {
   });
 });
 
-describe("dormitorio: 3 camas compartidas entre reservas", () => {
-  it("dos reservas que suman más de 3 no entran", async () => {
-    seed("d1", { unit: "dormitorio", persons: 2 });
-    expect((await checkAvailability("dormitorio", 1, S, E)).available).toBe(true);
-    expect((await checkAvailability("dormitorio", 2, S, E)).available).toBe(false);
+describe("dormitorios: 3 privados, uno por reserva", () => {
+  it("con 2 ocupados queda uno libre, con 3 no entra nadie", async () => {
+    seed("d1", { unit: "dormitorio", persons: 1 });
+    seed("d2", { unit: "dormitorio", persons: 3 });
+    expect((await checkAvailability("dormitorio", 3, S, E)).available).toBe(true);
+    seed("d3", { unit: "dormitorio", persons: 1 });
+    expect((await checkAvailability("dormitorio", 1, S, E)).available).toBe(false);
+  });
+
+  it("el día de salida el dormitorio queda libre", async () => {
+    for (const id of ["d1", "d2", "d3"]) {
+      seed(id, { unit: "dormitorio", persons: 3, startDate: "2026-11-14", endDate: "2026-11-21" });
+    }
+    expect((await checkAvailability("dormitorio", 3, "2026-11-21", "2026-11-22")).available).toBe(true);
+    expect((await checkAvailability("dormitorio", 3, "2026-11-20", "2026-11-21")).available).toBe(false);
   });
 
   it("no afecta el cupo del refugio", async () => {
@@ -105,7 +133,6 @@ describe("día de salida libre: alguien sale el sábado y otro entra el sábado"
   const cases: [UnitType, number][] = [
     ["refugio", 20],
     ["camping", 50],
-    ["dormitorio", 3],
     ["cabana", 8],
     ["habitacion1", 4],
     ["habitacion2", 3],

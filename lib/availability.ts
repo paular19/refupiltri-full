@@ -59,15 +59,22 @@ export async function getAvailabilityForUnit(
     let remainingCapacity: number;
 
     if (!UNITS[unit].isIndividual) {
-      remainingCapacity = conflictingReservations.length > 0 ? 0 : UNITS[unit].capacity;
+      // Cada reserva ocupa una unidad entera (los dormitorios son 3 iguales)
+      const rooms = UNITS[unit].rooms ?? 1;
+      remainingCapacity = conflictingReservations.length >= rooms ? 0 : UNITS[unit].capacity;
+
+      // La cabaña y sus habitaciones no se alquilan si el refugio ya está usando esos lugares
+      if (
+        remainingCapacity > 0 &&
+        CABANA_UNITS.includes(unit) &&
+        getRefugioOccupied(date, reservations) > calculateRefugioCapacity(date, reservations, unit)
+      ) {
+        remainingCapacity = 0;
+      }
     } else {
       // Lógica especial para el refugio
       if (unit === "refugio") {
-        remainingCapacity = calculateRefugioCapacity(date, reservations);
-        // Restar las personas ya reservadas en refugio
-        // Number(): hay reservas viejas con persons guardado como string
-        const refugioOccupied = conflictingReservations.reduce((sum, r) => sum + Number(r.persons), 0);
-        remainingCapacity -= refugioOccupied;
+        remainingCapacity = calculateRefugioCapacity(date, reservations) - getRefugioOccupied(date, reservations);
       } else {
         const occupied = conflictingReservations.reduce((sum, r) => sum + Number(r.persons), 0);
         remainingCapacity = UNITS[unit].capacity - occupied;
@@ -84,31 +91,34 @@ export async function getAvailabilityForUnit(
   return availabilityDates;
 }
 
-// Nueva función para calcular la capacidad del refugio basada en reservas de cabaña/habitaciones
-function calculateRefugioCapacity(date: string, reservations: Reservation[]): number {
-  const activeReservationsForDate = reservations.filter((reservation) => {
+const CABANA_UNITS: UnitType[] = ["cabana", "habitacion1", "habitacion2"];
+
+const activeReservationsOn = (date: string, reservations: Reservation[]) =>
+  reservations.filter((reservation) => {
     const isDateInRange = reservation.startDate <= date && date < reservation.endDate;
-    const isNotCancelled = !isCancelledStatus(reservation.status);
-    return isDateInRange && isNotCancelled;
+    return isDateInRange && !isCancelledStatus(reservation.status);
   });
 
-  // Verificar si la cabaña está reservada
-  const cabanaReserved = activeReservationsForDate.some(r => r.unit === "cabana");
-  
-  // Verificar habitaciones reservadas
-  const habitacion1Reserved = activeReservationsForDate.some(r => r.unit === "habitacion1");
-  const habitacion2Reserved = activeReservationsForDate.some(r => r.unit === "habitacion2");
-  
-  // Aplicar lógica de capacidad del refugio
-  if (cabanaReserved) {
-    return 10; // Si la cabaña está reservada, refugio tiene capacidad de 10
-  } else if (habitacion1Reserved && habitacion2Reserved) {
-    return 10; // Si ambas habitaciones están reservadas, refugio tiene capacidad de 10
-  } else if (habitacion1Reserved || habitacion2Reserved) {
-    return 15; // Si solo una habitación está reservada, refugio tiene capacidad de 15
-  } else {
-    return 20; // Capacidad completa del refugio
-  }
+// Personas anotadas en el refugio esa noche
+// Number(): hay reservas viejas con persons guardado como string
+const getRefugioOccupied = (date: string, reservations: Reservation[]): number =>
+  activeReservationsOn(date, reservations)
+    .filter((r) => r.unit === "refugio")
+    .reduce((sum, r) => sum + Number(r.persons), 0);
+
+// El refugio tiene 10 lugares propios y usa 10 más de la cabaña cuando no está alquilada.
+// Una habitación alquilada le resta 4; las dos o la cabaña completa le sacan los 10.
+// extraUnit: una unidad que se quiere alquilar, para ver cómo quedaría el refugio
+function calculateRefugioCapacity(date: string, reservations: Reservation[], extraUnit?: UnitType): number {
+  const units: string[] = activeReservationsOn(date, reservations).map((r) => r.unit);
+  if (extraUnit) units.push(extraUnit);
+
+  const habitacion1Reserved = units.includes("habitacion1");
+  const habitacion2Reserved = units.includes("habitacion2");
+
+  if (units.includes("cabana") || (habitacion1Reserved && habitacion2Reserved)) return 10;
+  if (habitacion1Reserved || habitacion2Reserved) return 16;
+  return 20;
 }
 
 // Verifica si dos unidades confligen (ej. cabaña vs habitaciones)

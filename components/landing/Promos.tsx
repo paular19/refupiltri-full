@@ -12,11 +12,11 @@ const Promos = () => {
   // Opciones de alojamiento (antes eran los paquetes, que ya no se ofrecen)
   const promos = [
     {
-      name: "DORMITORIOS\nCOMPARTIDOS",
+      name: "DORMITORIOS\nPRIVADOS",
       tag: "HASTA\n3 PAX",
       price: `${formatPrice(dormitorio[1])} por noche`,
       description:
-        "Camas en dormitorio compartido, para 1 a 3 personas por reserva. Incluye ropa de cama.",
+        "3 dormitorios privados, no se comparten con otros huéspedes. Cada uno para 1 a 3 personas. Incluye ropa de cama.",
       extra: `1 o 2 personas ${formatPrice(dormitorio[2])} · 3 personas ${formatPrice(dormitorio[3])}`,
       icon: "/mate.png",
     },
