@@ -16,7 +16,6 @@ export interface ReservationUnit {
   allowGuestSelection?: boolean; // Nueva propiedad opcional
   minGuests?: number; // Nueva propiedad opcional
   maxGuests?: number; 
-  rooms?: number; // cuántas unidades iguales hay (dormitorios); por defecto 1
 }
 
 export interface Reservation {

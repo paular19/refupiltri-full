@@ -68,10 +68,10 @@ describe("POST /api/create-payment", () => {
     expect(mocks.preferenceCreate).not.toHaveBeenCalled();
   });
 
-  it("400 si el total da 0 (habitación con más personas de las permitidas)", async () => {
+  it("400 si la habitación lleva más personas de las permitidas", async () => {
     const res = await createPayment(post("https://x/api/create-payment", { ...webBooking, unit: "habitacion2", persons: "4" }));
     expect(res.status).toBe(400);
-    expect((await res.json()).error).toBe("Datos de reserva inválidos");
+    expect((await res.json()).error).toBe("La unidad Habitación Oeste tiene una capacidad máxima de 3 personas");
     expect(mocks.preferenceCreate).not.toHaveBeenCalled();
   });
 

@@ -106,19 +106,15 @@ describe("cabaña y habitaciones se excluyen", () => {
   });
 });
 
-describe("dormitorios: 3 privados, uno por reserva", () => {
-  it("con 2 ocupados queda uno libre, con 3 no entra nadie", async () => {
-    seed("d1", { unit: "dormitorio", persons: 1 });
-    seed("d2", { unit: "dormitorio", persons: 3 });
+describe("dormitorio: uno solo, privado, una reserva por noche", () => {
+  it("con una reserva de 1 persona ya no entra otra", async () => {
     expect((await checkAvailability("dormitorio", 3, S, E)).available).toBe(true);
-    seed("d3", { unit: "dormitorio", persons: 1 });
+    seed("d1", { unit: "dormitorio", persons: 1 });
     expect((await checkAvailability("dormitorio", 1, S, E)).available).toBe(false);
   });
 
   it("el día de salida el dormitorio queda libre", async () => {
-    for (const id of ["d1", "d2", "d3"]) {
-      seed(id, { unit: "dormitorio", persons: 3, startDate: "2026-11-14", endDate: "2026-11-21" });
-    }
+    seed("d1", { unit: "dormitorio", persons: 3, startDate: "2026-11-14", endDate: "2026-11-21" });
     expect((await checkAvailability("dormitorio", 3, "2026-11-21", "2026-11-22")).available).toBe(true);
     expect((await checkAvailability("dormitorio", 3, "2026-11-20", "2026-11-21")).available).toBe(false);
   });
@@ -203,6 +199,18 @@ describe("datos inválidos", () => {
     const r = await checkAvailability("refugio", 21, S, E);
     expect(r.available).toBe(false);
     expect(r.message).toContain("capacidad máxima de 20");
+  });
+
+  it.each([
+    ["dormitorio", 3],
+    ["habitacion1", 4],
+    ["habitacion2", 3],
+    ["cabana", 8],
+  ] as [UnitType, number][])("%s no acepta más de %i personas", async (unit, max) => {
+    expect((await checkAvailability(unit, max, S, E)).available).toBe(true);
+    const r = await checkAvailability(unit, max + 1, S, E);
+    expect(r.available).toBe(false);
+    expect(r.message).toContain(`capacidad máxima de ${max}`);
   });
 
   it("unidad inexistente o faltante", async () => {

@@ -59,9 +59,8 @@ export async function getAvailabilityForUnit(
     let remainingCapacity: number;
 
     if (!UNITS[unit].isIndividual) {
-      // Cada reserva ocupa una unidad entera (los dormitorios son 3 iguales)
-      const rooms = UNITS[unit].rooms ?? 1;
-      remainingCapacity = conflictingReservations.length >= rooms ? 0 : UNITS[unit].capacity;
+      // Cada reserva ocupa la unidad entera: con una reserva esa noche ya no entra otra
+      remainingCapacity = conflictingReservations.length > 0 ? 0 : UNITS[unit].capacity;
 
       // La cabaña y sus habitaciones no se alquilan si el refugio ya está usando esos lugares
       if (
@@ -175,10 +174,13 @@ export async function checkAvailability(
     };
   }
 
-  if (UNITS[unit].isIndividual && persons > unitCapacity) {
+  // Tope de personas por reserva: el cupo en refugio/camping, maxGuests en dormitorio y habitaciones
+  // (el formulario ya lo limita, pero una reserva puede llegar directo a la API)
+  const maxPersons = UNITS[unit].maxGuests ?? unitCapacity;
+  if (persons > maxPersons) {
     return {
       available: false,
-      message: `La unidad ${UNITS[unit].name} tiene una capacidad máxima de ${unitCapacity} personas`
+      message: `La unidad ${UNITS[unit].name} tiene una capacidad máxima de ${maxPersons} personas`
     };
   }
 

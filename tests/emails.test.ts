@@ -49,7 +49,7 @@ describe("mail al cliente", () => {
 describe("mail al admin", () => {
   it("lista las comidas pedidas y los datos de contacto", () => {
     const html = generateAdminEmailTemplate(booking({ unit: "dormitorio" }), "mp-1");
-    expect(html).toContain("Dormitorios");
+    expect(html).toContain("Dormitorio");
     expect(html).toContain("Servicios extras:</strong> Desayuno de campo, Cena");
     expect(html).toContain("ana@example.com");
     expect(html).toContain("Reserva web con pago confirmado");
