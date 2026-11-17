@@ -71,7 +71,9 @@ const Booking = () => {
       }
     } catch (err) {
       console.error("Error creando preferencia:", err);
-      alert("Hubo un problema al iniciar el pago. Intenta nuevamente.");
+      // La API devuelve el motivo (fechas ocupadas, datos inválidos...): mostrarlo
+      const motivo = err instanceof Error && err.message ? `\n\n${err.message}` : "";
+      alert(`Hubo un problema al iniciar el pago. Intenta nuevamente.${motivo}`);
     }
   };
 

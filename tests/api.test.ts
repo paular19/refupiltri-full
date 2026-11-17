@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
 import { POST as createPayment } from "@/app/api/create-payment/route";
 import { GET as availabilityGET } from "@/app/api/availability/route";
@@ -29,6 +29,14 @@ const webBooking = {
 const lastPreferenceBody = () => (mocks.preferenceCreate.mock.calls.at(-1)![0] as any).body;
 
 describe("POST /api/create-payment", () => {
+  // Las fechas de webBooking tienen que ser futuras: fijamos "hoy" (solo Date, los timers siguen reales)
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ["Date"], now: new Date("2026-11-01T12:00:00Z") });
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("crea la preferencia de MP con el total del resumen", async () => {
     const res = await createPayment(post("https://x/api/create-payment", webBooking));
     expect(res.status).toBe(200);
@@ -88,6 +96,46 @@ describe("POST /api/create-payment", () => {
     expect(saved).toMatchObject({ origin: "web", status: "sin mp", persons: 2, includeDinner: true });
     expect(mocks.resendSend).toHaveBeenCalledTimes(2);
     expect(mocks.preferenceCreate).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["sin nombre", { contactName: "" }, /Ingresá tu nombre/],
+    ["nombre con solo espacios", { contactName: "   " }, /Ingresá tu nombre/],
+    ["sin email", { contactEmail: "" }, /Ingresá tu email/],
+    ["email inválido", { contactEmail: "ana@" }, /email no es válido/],
+    ["sin teléfono", { contactPhone: "" }, /Ingresá tu teléfono/],
+    ["teléfono con letras", { contactPhone: "llamame" }, /teléfono no es válido/],
+    ["campos que no son texto", { contactName: null, contactEmail: 123 }, /nombre.*email/],
+  ])("400 %s: no crea preferencia ni reserva", async (_name, overrides, message) => {
+    process.env.NEXT_PUBLIC_AVOID_MP = "true";
+    const res = await createPayment(post("https://x/api/create-payment", { ...webBooking, ...overrides }));
+    expect(res.status).toBe(400);
+    expect((await res.json()).error).toMatch(message);
+    expect(fake.all("reservations")).toHaveLength(0);
+    expect(mocks.preferenceCreate).not.toHaveBeenCalled();
+    expect(mocks.resendSend).not.toHaveBeenCalled();
+  });
+
+  it("guarda los datos de contacto sin espacios de más", async () => {
+    await createPayment(post("https://x/api/create-payment", { ...webBooking, contactName: "  Ana ", contactEmail: " ana@example.com " }));
+    const saved = JSON.parse(lastPreferenceBody().metadata.booking_data);
+    expect(saved.contactName).toBe("Ana");
+    expect(saved.contactEmail).toBe("ana@example.com");
+  });
+
+  it("400 si la fecha de ingreso ya pasó", async () => {
+    process.env.NEXT_PUBLIC_AVOID_MP = "true";
+    const res = await createPayment(post("https://x/api/create-payment", { ...webBooking, startDate: "2026-10-31", endDate: "2026-11-02" }));
+    expect(res.status).toBe(400);
+    expect((await res.json()).error).toBe("La fecha de ingreso no puede ser anterior a hoy");
+    expect(fake.all("reservations")).toHaveLength(0);
+  });
+
+  it("deja reservar para hoy a la noche aunque en UTC ya sea mañana", async () => {
+    // 1/11 22:30 en Argentina = 2/11 01:30 UTC
+    vi.setSystemTime(new Date("2026-11-02T01:30:00Z"));
+    const res = await createPayment(post("https://x/api/create-payment", { ...webBooking, startDate: "2026-11-01", endDate: "2026-11-02" }));
+    expect(res.status).toBe(200);
   });
 
   it("500 si MP falla", async () => {

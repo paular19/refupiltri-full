@@ -6,6 +6,7 @@ import { checkAvailability } from "@/lib/availability";
 import { createReservation } from "@/lib/reservations";
 import { getBookingTotal, ORIGIN_TYPES } from "@/lib/constants";
 import { sendBookingConfirmation } from "@/lib/email";
+import { isPastDate, validateContact } from "@/lib/validation";
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,15 +19,31 @@ export async function POST(request: NextRequest) {
       persons: Number(body.persons),
       startDate: body.startDate,
       endDate: body.endDate,
-      contactName: body.contactName || "",
-      contactLastName: body.contactLastName || "",
-      contactEmail: body.contactEmail || "",
-      contactPhone: body.contactPhone || "",
+      contactName: String(body.contactName ?? "").trim(),
+      contactLastName: String(body.contactLastName ?? "").trim(),
+      contactEmail: String(body.contactEmail ?? "").trim(),
+      contactPhone: String(body.contactPhone ?? "").trim(),
       includeBreakfastCampo: Boolean(body.includeBreakfastCampo),
       includeBreakfastAmericano: Boolean(body.includeBreakfastAmericano),
       includeDinner: Boolean(body.includeDinner),
       isResident: Boolean(body.isResident),
     };
+
+    // El formulario ya lo pide, pero el pedido puede llegar directo a la API
+    const contactErrors = validateContact(bookingData);
+    if (Object.keys(contactErrors).length > 0) {
+      return NextResponse.json(
+        { error: Object.values(contactErrors).join(". ") },
+        { status: 400 }
+      );
+    }
+
+    if (isPastDate(bookingData.startDate)) {
+      return NextResponse.json(
+        { error: "La fecha de ingreso no puede ser anterior a hoy" },
+        { status: 400 }
+      );
+    }
 
     // Validate availability before creating payment
     const availability = await checkAvailability(
