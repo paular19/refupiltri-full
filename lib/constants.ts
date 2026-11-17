@@ -63,17 +63,37 @@ export const RESIDENT_PRICES: Record<string, number> = {
   camping: 13000,
 };
 
-// Feriados nacionales y días no laborables "puente": sus noches se cobran como fin
-// de semana en la cabaña. Actualizar cada año con el calendario oficial
-// (argentina.gob.ar/interior/feriados); los trasladables y puentes de 2027 se
-// agregan cuando salga el decreto.
+// Feriados nacionales y días no laborables (puentes turísticos, Jueves Santo): sus
+// noches se cobran como fin de semana en la cabaña. Actualizar cada año con el
+// calendario oficial (argentina.gob.ar/interior/feriados).
+// Trasladables (Ley 27.399, art. 6): si caen martes o miércoles pasan al lunes
+// anterior; si caen jueves o viernes, al lunes siguiente; sábado o domingo no se mueven.
 export const HOLIDAYS = [
   // 2026
-  "2026-11-23", "2026-12-07", "2026-12-08", "2026-12-25",
-  // 2027 (inamovibles)
-  "2027-01-01", "2027-02-08", "2027-02-09", "2027-03-24", "2027-03-26",
-  "2027-04-02", "2027-05-01", "2027-05-25", "2027-06-20", "2027-07-09",
-  "2027-12-08", "2027-12-25",
+  "2026-11-23", // Soberanía Nacional (trasladado del vie 20)
+  "2026-12-07", // puente turístico
+  "2026-12-08", // Inmaculada Concepción
+  "2026-12-25", // Navidad
+
+  // 2027 - inamovibles
+  "2027-01-01", // Año Nuevo
+  "2027-02-08", "2027-02-09", // Carnaval
+  "2027-03-24", // Memoria por la Verdad y la Justicia
+  "2027-03-25", // Jueves Santo (no laborable)
+  "2027-03-26", // Viernes Santo
+  "2027-04-02", // Malvinas
+  "2027-05-01", // Día del Trabajador
+  "2027-05-25", // Revolución de Mayo
+  "2027-06-20", // Belgrano (domingo)
+  "2027-07-09", // Independencia
+  "2027-12-08", // Inmaculada Concepción
+  "2027-12-25", // Navidad
+  // 2027 - trasladables
+  "2027-06-21", // Güemes (jue 17/6 -> lun 21/6)
+  "2027-08-16", // San Martín (mar 17/8 -> lun 16/8)
+  "2027-10-11", // Diversidad Cultural (mar 12/10 -> lun 11/10)
+  // Soberanía Nacional 2027 cae sábado 20/11: no se traslada
+  // 2027 - puentes turísticos: agregar cuando salga el decreto (suele ser a fin de año)
 ];
 
 // --- HELPERS DE PRECIO ---

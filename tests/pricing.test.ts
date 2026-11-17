@@ -109,6 +109,17 @@ describe("countWeekendNights", () => {
     expect(countWeekendNights("2026-12-25", "2026-12-26")).toBe(1);
   });
 
+  it("feriados trasladables 2027 y Jueves Santo", () => {
+    // lun 21/6 (Güemes trasladado), lun 16/8 (San Martín), lun 11/10 (Diversidad Cultural)
+    expect(countWeekendNights("2027-06-21", "2027-06-22")).toBe(1);
+    expect(countWeekendNights("2027-08-16", "2027-08-17")).toBe(1);
+    expect(countWeekendNights("2027-10-11", "2027-10-12")).toBe(1);
+    // la fecha original ya no es feriado: mar 17/8 es noche de semana
+    expect(countWeekendNights("2027-08-17", "2027-08-18")).toBe(0);
+    // mié 24/3 (Memoria), jue 25/3 (Jueves Santo), vie 26/3 (Viernes Santo)
+    expect(countWeekendNights("2027-03-24", "2027-03-27")).toBe(3);
+  });
+
   it("funciona al cruzar mes y año", () => {
     // jue 31/12 a sáb 2/1: noche jue (no) y vie 1/1 (feriado y viernes)
     expect(countWeekendNights("2026-12-31", "2027-01-02")).toBe(1);

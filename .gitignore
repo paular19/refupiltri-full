@@ -37,3 +37,4 @@ next-env.d.ts
 googlekey.json
 firebase-debug.log
 firestore-debug.log
+.env*
