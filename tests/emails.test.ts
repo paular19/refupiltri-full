@@ -23,26 +23,34 @@ const booking = (overrides: Partial<BookingData> = {}): BookingData => ({
 describe("mail al cliente", () => {
   const html = generateCustomerEmailTemplate(booking(), "mp-1");
 
+  it("saluda por el nombre", () => {
+    expect(html).toContain("¡Hola, Ana! Gracias por elegir el <strong>Refugio del Piltriquitrón</strong>");
+  });
+
   it("muestra el nombre de la unidad, no la clave interna", () => {
-    expect(html).toContain("Cabaña completa");
+    expect(html).toContain("Unidad:</strong> Cabaña completa");
     expect(html).not.toMatch(/Unidad:<\/strong> cabana/);
   });
 
-  it("fechas en dd/MM/yyyy", () => {
-    expect(html).toContain("06/12/2026");
-    expect(html).toContain("09/12/2026");
+  it("detalles de la reserva con entrada en dd/MM/yyyy", () => {
+    expect(html).toContain("ID:</strong> mp-1");
+    expect(html).toContain("Personas:</strong> 6");
+    expect(html).toContain("Entrada:</strong> 06/12/2026");
   });
 
-  it("comidas pedidas sin precio", () => {
-    expect(html).toContain("Desayuno de campo:</strong> Pedido (no se cobra en la reserva)");
-    expect(html).toContain("Desayuno americano:</strong> No");
-    expect(html).toContain("Cena:</strong> Pedida (no se cobra en la reserva)");
+  it("incluye cómo llegar, alojamientos, contacto y cancelaciones", () => {
+    expect(html).toContain("https://maps.app.goo.gl/okpeSHCLDV3UwupP9");
+    expect(html).toContain("DORMITORIO DEL REFUGIO");
+    expect(html).toContain("HABITACIÓN EN LA CABAÑA");
+    expect(html).toContain("CABAÑA COMPLETA");
+    expect(html).toContain("DORMITORIO CON VISTA AL VALLE");
+    expect(html).toContain("https://wa.me/5492944120310");
+    expect(html).toContain("01/12/2026 al 01/03/2027");
     expect(html).not.toContain("$");
   });
 
-  it("texto según quién creó la reserva", () => {
-    expect(html).toContain("confirmada exitosamente tras el pago");
-    expect(generateCustomerEmailTemplate(booking(), "x", true)).toContain("registrada por nuestro equipo administrativo");
+  it("escapa el nombre del cliente", () => {
+    expect(generateCustomerEmailTemplate(booking({ contactName: "<b>x</b>" }), "x")).toContain("&lt;b&gt;x&lt;/b&gt;");
   });
 });
 
