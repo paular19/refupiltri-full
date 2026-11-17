@@ -88,7 +88,7 @@ const Booking = () => {
         <div className="relative z-0 bg-[#C0DAE0] pt-12 pb-20">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div
-              className="rounded-2xl shadow-xl p-8"
+              className="rounded-2xl shadow-xl p-4 sm:p-8"
               style={{ backgroundColor: "#6E6F30" }}
             >
               <StepHeaders currentStep={currentStep} />

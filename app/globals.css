@@ -93,3 +93,15 @@
     font-size: 1.5rem; /* Equivalente a text-2xl (~24px) */
   }
 }
+
+/* Calendarios (react-day-picker) en celulares: días un poco más chicos para que
+   entre la semana completa, de lunes a domingo, aun en pantallas de 360px.
+   "body" le gana a la hoja de estilos del calendario, que define estas variables. */
+@media (max-width: 639px) {
+  body .rdp-root {
+    --rdp-day-width: 36px;
+    --rdp-day-height: 36px;
+    --rdp-day_button-width: 34px;
+    --rdp-day_button-height: 34px;
+  }
+}

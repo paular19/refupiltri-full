@@ -366,7 +366,7 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
 
           {/* Calendario */}
           {showCalendar && (
-            <div className="bg-white p-4 rounded-lg border">
+            <div className="bg-white p-2 sm:p-4 rounded-lg border">
               {loadingAvailability ? (
                 <div className="flex items-center justify-center p-8">
                   Cargando disponibilidad...
@@ -395,7 +395,8 @@ export default function AdminReservationForm({ reservation, mode = 'create' }: A
                   numberOfMonths={2}
                   defaultMonth={formData.startDate ? parseISO(formData.startDate) : new Date()}
                   classNames={{
-                    months: "flex gap-2",
+                    // en celulares los dos meses van uno debajo del otro
+                    months: "flex flex-col sm:flex-row gap-2",
                     month: "rounded-lg border border-gray-300 p-2",
                     caption: "flex justify-between items-center mb-2 text-gray-800 font-bold",
                     nav_button: "text-gray-600 hover:text-gray-800 transition-colors duration-200",

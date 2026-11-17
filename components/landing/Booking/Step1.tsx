@@ -249,7 +249,7 @@ export const Step1 = ({
 
       {/* Calendario */}
       {showCalendar && (
-        <div className="bg-white p-4 rounded-lg mt-2">
+        <div className="bg-white p-2 sm:p-4 rounded-lg mt-2">
           {loadingAvailability ? (
             <div className="flex items-center justify-center p-8 text-white">
               Cargando disponibilidad...
@@ -278,7 +278,8 @@ export const Step1 = ({
               numberOfMonths={2}
               defaultMonth={formData.startDate ? parseISO(formData.startDate) : new Date()}
               classNames={{
-                months: "flex gap-2",
+                // en celulares los dos meses van uno debajo del otro
+                months: "flex flex-col sm:flex-row gap-2",
                 month: "rounded-lg border border-[#1A222B] p-2",
                 caption: "flex justify-between items-center mb-2 text-[#1A222B] font-bold",
                 nav_button: "text-[#1A222B] hover:text-[#1A222B] transition-colors duration-200",
